@@ -3,6 +3,7 @@ package com.rulecity.parse;
 import com.rulecity.parse.data.ExternalNamesDefinition;
 import com.rulecity.parse.data.Fixup;
 import com.rulecity.parse.data.PublicNamesDefinition;
+import com.rulecity.parse.data.Thread;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -119,6 +120,7 @@ public class ObjParserImpl implements ObjParser
     private ObjItem handleFIXUPP()
     {
         List<Fixup> lstFixups = new ArrayList<>();
+        List<Thread> lstThreads = new ArrayList<>();
 
         // thread and fixup records can be repeated
         while (recordCount < (this.recordLength-1))
@@ -138,12 +140,15 @@ public class ObjParserImpl implements ObjParser
             // else it's a THREAD record
             else
             {
-                throw new RuntimeException("TODO: Implement THREAD");
+                boolean threadFieldSpecifiesFrame = (firstByte & 0x40) != 0;
+                int method = (firstByte >> 2) & 7;
+                int threadNum = (firstByte & 3);
+                int index = getByteAndUpdateChecksum(); // it's unclear to me whether this can ever be more than 1 byte. for now, assuming 1 byte.
+                lstThreads.add(new Thread(threadFieldSpecifiesFrame, method, threadNum, index));
             }
-
         }
 
-        return new ObjItemFIXUPPImpl(lstFixups);
+        return new ObjItemFIXUPPImpl(lstFixups, lstThreads);
     }
 
     private Fixup getFixup(boolean segmentRelativeFixups, byte location, int dataRecordOffset)
@@ -160,8 +165,7 @@ public class ObjParserImpl implements ObjParser
 
         Byte targetDatum = null;
 
-        // it appears that targetDatum may always be present, but this is unconfirmed.  If you get parse errors, check this.
-        targetDatum = getByteAndUpdateChecksum();
+        if (!targetSpecifiedByPreviousThreadFieldRef) targetDatum = getByteAndUpdateChecksum();
 
         Integer targetDisplacement = null;
         if (!P)
@@ -199,7 +203,7 @@ public class ObjParserImpl implements ObjParser
     {
         byte segmentIndex = getByteAndUpdateChecksum();
         int enumeratedDataOffset = getWordAndUpdateChecksum();
-        byte[] arrBytes = new byte[this.recordLength-3];
+        byte[] arrBytes = new byte[this.recordLength-4];
         int idx = 0;
 
         while (recordCount < (this.recordLength-1))
@@ -207,7 +211,7 @@ public class ObjParserImpl implements ObjParser
             arrBytes[idx++] = getByteAndUpdateChecksum();
         }
 
-        return new ObjItemLEDATA(segmentIndex, enumeratedDataOffset, arrBytes);
+        return new ObjItemLEDATAImpl(segmentIndex, enumeratedDataOffset, arrBytes);
     }
 
     private ObjItem handleLNAMES()

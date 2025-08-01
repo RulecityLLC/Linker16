@@ -1,6 +1,7 @@
 package com.rulecity.parse;
 
 import com.rulecity.parse.data.Fixup;
+import com.rulecity.parse.data.Thread;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -168,6 +169,156 @@ public class ObjParserImplTest
         assertEquals(b(1), fix.targetDatum());
         assertFalse(fix.targetSpecifiedByPreviousThreadFieldRef());
         assertNull(fix.targetDisplacement());
+    }
+
+    @Test
+    public void FIXUPPTest3_Threads()
+    {
+        // ARRANGE
+        byte[] arrRecord = {
+                b(0x9C), b(0xD), 0, 0, 3, 1, 2, 2, 1, 3, 4, b(0x40), 1, b(0x45), 1, b(0xC0)
+        };
+
+        // ACT
+        var instance = new ObjParserImpl();
+        List<ObjItem> objItems = instance.parseBinary(arrRecord);
+
+        // ASSERT
+        assertEquals(1, objItems.size());
+        ObjItem item = objItems.getFirst();
+        ObjItemFIXUPP itemFIXUPP = (ObjItemFIXUPP) item;
+        List<Fixup> fixups = itemFIXUPP.getFixups();
+        List<Thread> threads = itemFIXUPP.getThreads();
+        assertEquals(6, threads.size());
+
+        Thread thread = threads.get(0);
+        assertFalse(thread.threadFieldSpecifiesFrame());
+        assertEquals(0, thread.method());
+        assertEquals(0, thread.threadNum());
+        assertEquals(3, thread.index());
+
+        thread = threads.get(1);
+        assertFalse(thread.threadFieldSpecifiesFrame());
+        assertEquals(0, thread.method());
+        assertEquals(1, thread.threadNum());
+        assertEquals(2, thread.index());
+
+        thread = threads.get(2);
+        assertFalse(thread.threadFieldSpecifiesFrame());
+        assertEquals(0, thread.method());
+        assertEquals(2, thread.threadNum());
+        assertEquals(1, thread.index());
+
+        thread = threads.get(3);
+        assertFalse(thread.threadFieldSpecifiesFrame());
+        assertEquals(0, thread.method());
+        assertEquals(3, thread.threadNum());
+        assertEquals(4, thread.index());
+
+        thread = threads.get(4);
+        assertTrue(thread.threadFieldSpecifiesFrame());
+        assertEquals(0, thread.method());
+        assertEquals(0, thread.threadNum());
+        assertEquals(1, thread.index());
+
+        thread = threads.get(5);
+        assertTrue(thread.threadFieldSpecifiesFrame());
+        assertEquals(1, thread.method());
+        assertEquals(1, thread.threadNum());
+        assertEquals(1, thread.index());
+    }
+
+    @Test
+    public void FIXUPPTest4()
+    {
+        // ARRANGE
+        byte[] arrRecord = {
+                b(0x9C), b(4), 0, b(0xC4), 9, b(0x9D), b(0xF6)
+        };
+
+        // ACT
+        var instance = new ObjParserImpl();
+        List<ObjItem> objItems = instance.parseBinary(arrRecord);
+
+        // ASSERT
+        assertEquals(1, objItems.size());
+        ObjItem item = objItems.getFirst();
+        ObjItemFIXUPP itemFIXUPP = (ObjItemFIXUPP) item;
+        List<Fixup> fixups = itemFIXUPP.getFixups();
+        List<Thread> threads = itemFIXUPP.getThreads();
+        assertEquals(0, threads.size());
+        assertEquals(1, fixups.size());
+
+        Fixup fix = fixups.getFirst();
+        assertEquals(9, fix.dataRecordOffset());
+        assertEquals(1, fix.frame());
+        assertNull(fix.frameDatum());
+        assertTrue(fix.frameSpecifiedByPreviousThreadFieldRef());
+        assertEquals(1, fix.location());
+        assertTrue(fix.segmentRelativeFixups());
+        assertEquals(5, fix.targt());
+        assertNull(fix.targetDatum());
+        assertTrue(fix.targetSpecifiedByPreviousThreadFieldRef());
+        assertNull(fix.targetDisplacement());
+    }
+
+    @Test
+    public void FIXUPPTest5()
+    {
+        // ARRANGE
+        byte[] arrRecord = {
+                b(0x9C), b(8), 0, b(0xC4), 2, b(2), 1,1,b(0x10),0,b(0x82)
+        };
+
+        // ACT
+        var instance = new ObjParserImpl();
+        List<ObjItem> objItems = instance.parseBinary(arrRecord);
+
+        // ASSERT
+        assertEquals(1, objItems.size());
+        ObjItem item = objItems.getFirst();
+        ObjItemFIXUPP itemFIXUPP = (ObjItemFIXUPP) item;
+        List<Fixup> fixups = itemFIXUPP.getFixups();
+        List<Thread> threads = itemFIXUPP.getThreads();
+        assertEquals(0, threads.size());
+        assertEquals(1, fixups.size());
+
+        // some of these assertion values I didn't verify so if only this test is failing, double-check these values
+        Fixup fix = fixups.getFirst();
+        assertEquals(2, fix.dataRecordOffset());
+        assertEquals(0, fix.frame());
+        assertEquals(b(1), fix.frameDatum());
+        assertFalse(fix.frameSpecifiedByPreviousThreadFieldRef());
+        assertEquals(1, fix.location());
+        assertTrue(fix.segmentRelativeFixups());
+        assertEquals(2, fix.targt());
+        assertEquals(b(1), fix.targetDatum());
+        assertFalse(fix.targetSpecifiedByPreviousThreadFieldRef());
+        assertEquals(0x10, fix.targetDisplacement());
+    }
+
+    @Test
+    public void LEDATATest1()
+    {
+        // ARRANGE
+        byte[] arrRecord = { b(0xA0), 8, 0, 1, 0,0,b(0x8D), b(0x1E), b(0x10), 0, b(0x9C) };
+
+        // ACT
+        var instance = new ObjParserImpl();
+        List<ObjItem> objItems = instance.parseBinary(arrRecord);
+
+        // ASSERT
+        assertEquals(1, objItems.size());
+        ObjItem item = objItems.getFirst();
+        var itemLEDATA = (ObjItemLEDATA) item;
+        assertEquals(arrRecord[3], itemLEDATA.getSegmentIdx());
+        assertEquals(0, itemLEDATA.getEnumeratedDataOffset());
+        byte[] arrBytes = itemLEDATA.getBytes();
+        assertEquals(4, arrBytes.length);
+        assertEquals(arrRecord[6], arrBytes[0]);
+        assertEquals(arrRecord[7], arrBytes[1]);
+        assertEquals(arrRecord[8], arrBytes[2]);
+        assertEquals(arrRecord[9], arrBytes[3]);
     }
 
     // to avoid having to cast everything to byte
