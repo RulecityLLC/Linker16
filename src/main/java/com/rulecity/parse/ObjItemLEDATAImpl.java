@@ -22,7 +22,9 @@ public class ObjItemLEDATAImpl implements ObjItem, ObjItemLEDATA
     @Override
     public String getDataString()
     {
-        return String.format("Segment idx is %x.  Data is %x bytes in size", segmentIndex, arrBytes.length);
+        return String.format("Segment idx: %x.  Enumerated data offset: %x.  Data is %x bytes in size", segmentIndex,
+                enumeratedDataOffset,
+                arrBytes.length);
     }
 
     @Override

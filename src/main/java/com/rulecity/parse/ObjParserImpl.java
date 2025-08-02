@@ -298,6 +298,13 @@ public class ObjParserImpl implements ObjParser
         byte C = (byte) ((attributes >> 2) & 7);
         boolean Big = (attributes & 2) != 0;
         boolean P = (attributes & 1) != 0;
+
+        if (A == 0)
+        {
+            // only support this if it's actually used somewhere in stuff we care about
+            throw new RuntimeException("A is 0 so the optional Frame Number word and Offset byte need to be read in.  This is currently unsupported");
+        }
+
         int segmentLength = getWordAndUpdateChecksum();
         int segmentNameIdx = getByteAndUpdateChecksum();
         int classNameIdx = getByteAndUpdateChecksum();
@@ -331,6 +338,6 @@ public class ObjParserImpl implements ObjParser
     private int getWordAndUpdateChecksum()
     {
         // & 0xFFFF because java uses signed integers by default, and we want to ensure our result is unsigned
-        return (getByteAndUpdateChecksum() | (getByteAndUpdateChecksum() << 8)) & 0xFFFF;
+        return ((getByteAndUpdateChecksum() & 0xFF) | (getByteAndUpdateChecksum() << 8)) & 0xFFFF;
     }
 }
