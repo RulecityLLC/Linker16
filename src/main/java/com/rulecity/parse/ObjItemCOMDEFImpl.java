@@ -28,6 +28,7 @@ public class ObjItemCOMDEFImpl implements ObjItem, ObjItemCOMDEF
             bdr.append(entry.name());
             bdr.append(": ");
             bdr.append(entry.length());
+            bdr.append(" bytes");
             bdr.append('\n');
         }
         return bdr.toString();
