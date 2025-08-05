@@ -1,5 +1,6 @@
 package com.rulecity.parse;
 
+import com.rulecity.parse.data.Communal;
 import com.rulecity.parse.data.Fixup;
 import com.rulecity.parse.data.Thread;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,41 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ObjParserImplTest
 {
+    @Test
+    public void COMDEFTest1()
+    {
+        // ARRANGE
+        byte[] arrRecord = { b(0xB0), b(0x20), 0, 4, b(0x5F), b(0x66), b(0x6F), b(0x6F), 0,
+                    b(0x62), 2, 5, b(0x5f), b(0x66), b(0x6F), b(0x6F),
+                b(0x32), 0, b(0x62), b(0x81), 0, b(0x80), 5, b(0x5F),
+                b(0x66), b(0x6f), b(0x6f), b(0x33), 0, b(0x61), b(0x81), b(0x90),
+                1, 1, b(0x99)
+        };
+
+        // ACT
+        var instance = new ObjParserImpl();
+        List<ObjItem> objItems = instance.parseBinary(arrRecord);
+
+        // ASSERT
+        assertEquals(1, objItems.size());
+        ObjItem item = objItems.getFirst();
+        var itemCOMDEF = (ObjItemCOMDEF) item;
+        List<Communal> lstCommunal = itemCOMDEF.getCommualList();
+        assertEquals(3, lstCommunal.size());
+
+        Communal entry = lstCommunal.getFirst();
+        assertEquals("_foo", entry.name());
+        assertEquals(2, entry.length());
+
+        entry = lstCommunal.get(1);
+        assertEquals("_foo2", entry.name());
+        assertEquals(32768, entry.length());
+
+        entry = lstCommunal.get(2);
+        assertEquals("_foo3", entry.name());
+        assertEquals(400, entry.length());
+    }
+
     @Test
     public void COMENTTest()
     {

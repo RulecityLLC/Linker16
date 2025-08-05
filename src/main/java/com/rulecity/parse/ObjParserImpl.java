@@ -1,8 +1,6 @@
 package com.rulecity.parse;
 
-import com.rulecity.parse.data.ExternalNamesDefinition;
-import com.rulecity.parse.data.Fixup;
-import com.rulecity.parse.data.PublicNamesDefinition;
+import com.rulecity.parse.data.*;
 import com.rulecity.parse.data.Thread;
 
 import java.util.ArrayList;
@@ -53,6 +51,8 @@ public class ObjParserImpl implements ObjParser
                         handleFIXUPP();
                 case (byte) 0xA0 ->   // LEDATA
                         handleLEDATA();
+                case (byte) 0xB0 -> // COMDEF
+                        handleCOMDEF();
                 default -> throw new RuntimeException(String.format("Unknown record type %02x", recordType));
             };
 
@@ -70,6 +70,38 @@ public class ObjParserImpl implements ObjParser
         }
 
         return result;
+    }
+
+    private ObjItem handleCOMDEF()
+    {
+        List<Communal> lstCommunal = new ArrayList<>();
+        StringBuilder bldr = new StringBuilder();
+        while (recordCount < (this.recordLength-1))
+        {
+            byte len = getByteAndUpdateChecksum();
+            for (int i = 0; i < len; i++)
+            {
+                byte ch = getByteAndUpdateChecksum();
+                bldr.append((char) ch);
+            }
+            byte typeIdx = getByteAndUpdateChecksum();
+            byte dataSegmentType = getByteAndUpdateChecksum();
+            int communalLength = 0;
+
+            communalLength = switch (dataSegmentType)
+            {
+                case 0x62 ->  // NEAR
+                        getCommunalField();
+                case 0x61 ->  // FAR
+                        getCommunalField() * getCommunalField();
+                default -> throw new RuntimeException("Unexpected value for dataSegmentType");
+            };
+            var entry = new Communal(bldr.toString(), communalLength);
+            lstCommunal.add(entry);
+            bldr.setLength(0);
+        }
+
+        return new ObjItemCOMDEFImpl(lstCommunal);
     }
 
     private ObjItem handleCOMENT()
@@ -340,4 +372,29 @@ public class ObjParserImpl implements ObjParser
         // & 0xFFFF because java uses signed integers by default, and we want to ensure our result is unsigned
         return ((getByteAndUpdateChecksum() & 0xFF) | (getByteAndUpdateChecksum() << 8)) & 0xFFFF;
     }
+
+    private int getCommunalField()
+    {
+        int result = 0;
+        int val = getByteAndUpdateChecksum() & 0xFF;
+
+        if (val < 0x80) return val;
+        else if (val == 0x81)
+        {
+            result = getWordAndUpdateChecksum();
+        }
+        else if (val == 0x84)
+        {
+            result = (getByteAndUpdateChecksum() & 0xFF) | ((getByteAndUpdateChecksum() & 0xFF) << 8) |
+                    ((getByteAndUpdateChecksum() & 0xFF) << 16);
+        }
+        else if (val == 0x88)
+        {
+            result = (getByteAndUpdateChecksum() & 0xFF) | ((getByteAndUpdateChecksum() & 0xFF) << 8) |
+                    ((getByteAndUpdateChecksum() & 0xFF) << 16) | ((getByteAndUpdateChecksum() & 0xFF) << 24);
+        }
+
+        return result;
+    }
+
 }
