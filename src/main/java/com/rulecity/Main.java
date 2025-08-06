@@ -1,8 +1,8 @@
 package com.rulecity;
 
-import com.rulecity.parse.ObjItem;
-import com.rulecity.parse.ObjParser;
-import com.rulecity.parse.ObjParserImpl;
+import com.rulecity.parse.OMFItem;
+import com.rulecity.parse.OMFParser;
+import com.rulecity.parse.OMFParserImpl;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -22,10 +22,10 @@ public class Main
         Path path = Paths.get(args[0]);
         byte[] data = Files.readAllBytes(path);
 
-        ObjParser parserObj = new ObjParserImpl();
-        List<ObjItem> objItems = parserObj.parseBinary(data);
+        OMFParser parserObj = new OMFParserImpl();
+        List<OMFItem> objItems = parserObj.parseBinary(data);
 
-        for (ObjItem item : objItems)
+        for (OMFItem item : objItems)
         {
             System.out.println(item.getTypeString() + ":");
             System.out.println(item.getDataString());

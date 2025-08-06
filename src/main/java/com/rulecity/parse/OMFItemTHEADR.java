@@ -1,10 +1,10 @@
 package com.rulecity.parse;
 
-public class ObjItemTHEADR implements ObjItem
+public class OMFItemTHEADR implements OMFItem
 {
     private final String text;
 
-    public ObjItemTHEADR(String string)
+    public OMFItemTHEADR(String string)
     {
         this.text = string;
     }

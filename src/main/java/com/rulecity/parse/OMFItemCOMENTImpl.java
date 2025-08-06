@@ -1,12 +1,12 @@
 package com.rulecity.parse;
 
-public class ObjItemCOMENTImpl implements ObjItem, ObjItemCOMENT
+public class OMFItemCOMENTImpl implements OMFItem, OMFItemCOMENT
 {
     private final byte commentType;
     private final byte commentClass;
     private final byte[] arrBytes;
 
-    public ObjItemCOMENTImpl(byte commentType, byte commentClass, byte[] arrBytes)
+    public OMFItemCOMENTImpl(byte commentType, byte commentClass, byte[] arrBytes)
     {
         this.commentType = commentType;
         this.commentClass = commentClass;

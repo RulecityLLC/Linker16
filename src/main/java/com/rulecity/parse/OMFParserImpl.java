@@ -6,7 +6,7 @@ import com.rulecity.parse.data.Thread;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ObjParserImpl implements ObjParser
+public class OMFParserImpl implements OMFParser
 {
     int idxSrc; // the position within the raw binary data
     byte[] src; // the raw binary data of the .OBJ file
@@ -15,16 +15,16 @@ public class ObjParserImpl implements ObjParser
     int recordCount;    // so we know when we've parsed a complete record
 
     @Override
-    public List<ObjItem> parseBinary(byte[] src)
+    public List<OMFItem> parseBinary(byte[] src)
     {
         idxSrc = 0;
-        List<ObjItem> result = new ArrayList<>();
+        List<OMFItem> result = new ArrayList<>();
         this.src = src;
 
         // while we haven't parsed the entire buffer
         while (idxSrc < src.length)
         {
-            ObjItem item = null;
+            OMFItem item = null;
             checkSum = 0;
             byte recordType = getByteAndUpdateChecksum();
             recordLength = getWordAndUpdateChecksum();
@@ -72,7 +72,7 @@ public class ObjParserImpl implements ObjParser
         return result;
     }
 
-    private ObjItem handleCOMDEF()
+    private OMFItem handleCOMDEF()
     {
         List<Communal> lstCommunal = new ArrayList<>();
         StringBuilder bldr = new StringBuilder();
@@ -101,10 +101,10 @@ public class ObjParserImpl implements ObjParser
             bldr.setLength(0);
         }
 
-        return new ObjItemCOMDEFImpl(lstCommunal);
+        return new OMFItemCOMDEFImpl(lstCommunal);
     }
 
-    private ObjItem handleCOMENT()
+    private OMFItem handleCOMENT()
     {
         byte commentType = getByteAndUpdateChecksum();
         byte commentClass = getByteAndUpdateChecksum();
@@ -116,10 +116,10 @@ public class ObjParserImpl implements ObjParser
             arrBytes[idx++] = getByteAndUpdateChecksum();
         }
 
-        return new ObjItemCOMENTImpl(commentType, commentClass, arrBytes);
+        return new OMFItemCOMENTImpl(commentType, commentClass, arrBytes);
     }
 
-    private ObjItem handleEXTDEF()
+    private OMFItem handleEXTDEF()
     {
         int count = 0;
         List<ExternalNamesDefinition> lstDefs = new ArrayList<>();
@@ -146,10 +146,10 @@ public class ObjParserImpl implements ObjParser
             bldr.setLength(0);
         }
 
-        return new ObjItemEXTDEF(lstDefs);
+        return new OMFItemEXTDEF(lstDefs);
     }
 
-    private ObjItem handleFIXUPP()
+    private OMFItem handleFIXUPP()
     {
         List<Fixup> lstFixups = new ArrayList<>();
         List<Thread> lstThreads = new ArrayList<>();
@@ -180,7 +180,7 @@ public class ObjParserImpl implements ObjParser
             }
         }
 
-        return new ObjItemFIXUPPImpl(lstFixups, lstThreads);
+        return new OMFItemFIXUPPImpl(lstFixups, lstThreads);
     }
 
     private Fixup getFixup(boolean segmentRelativeFixups, byte location, int dataRecordOffset)
@@ -208,7 +208,7 @@ public class ObjParserImpl implements ObjParser
                 frame, targetSpecifiedByPreviousThreadFieldRef, targt, frameDatum, targetDatum, targetDisplacement);
     }
 
-    private ObjItem handleGRPDEF()
+    private OMFItem handleGRPDEF()
     {
         int count = 0;
         List<Byte> lstSegDefs = new ArrayList<>();
@@ -228,10 +228,10 @@ public class ObjParserImpl implements ObjParser
             lstSegDefs.add(segmentDefinition);
         }
 
-        return new ObjItemGRPDEF(grpNameIdx, lstSegDefs);
+        return new OMFItemGRPDEF(grpNameIdx, lstSegDefs);
     }
 
-    private ObjItem handleLEDATA()
+    private OMFItem handleLEDATA()
     {
         byte segmentIndex = getByteAndUpdateChecksum();
         int enumeratedDataOffset = getWordAndUpdateChecksum();
@@ -243,10 +243,10 @@ public class ObjParserImpl implements ObjParser
             arrBytes[idx++] = getByteAndUpdateChecksum();
         }
 
-        return new ObjItemLEDATAImpl(segmentIndex, enumeratedDataOffset, arrBytes);
+        return new OMFItemLEDATAImpl(segmentIndex, enumeratedDataOffset, arrBytes);
     }
 
-    private ObjItem handleLNAMES()
+    private OMFItem handleLNAMES()
     {
         StringBuilder bldr = new StringBuilder();
         List<String> names = new ArrayList<>();
@@ -264,10 +264,10 @@ public class ObjParserImpl implements ObjParser
             bldr.setLength(0);
         }
 
-        return new ObjItemLNAMES(names);
+        return new OMFItemLNAMES(names);
     }
 
-    private ObjItem handleMODEND()
+    private OMFItem handleMODEND()
     {
         byte moduleType = getByteAndUpdateChecksum();
         Byte endData = null, frameDatum = null, targetDatum = null;
@@ -284,10 +284,10 @@ public class ObjParserImpl implements ObjParser
             targetDisplacement = getWordAndUpdateChecksum();
         }
 
-        return new ObjItemMODEND(isAMainProgramModule, moduleContainsAStartAddress, endData, frameDatum, targetDatum, targetDisplacement);
+        return new OMFItemMODEND(isAMainProgramModule, moduleContainsAStartAddress, endData, frameDatum, targetDatum, targetDisplacement);
     }
 
-    private ObjItem handlePUBDEF()
+    private OMFItem handlePUBDEF()
     {
         List<PublicNamesDefinition> lstDefs = new ArrayList<>();
         StringBuilder bldr = new StringBuilder();
@@ -320,10 +320,10 @@ public class ObjParserImpl implements ObjParser
             bldr.setLength(0);
         }
 
-        return new ObjItemPUBDEF(baseGroupIdx, baseSegmentIdx, baseFrame, lstDefs);
+        return new OMFItemPUBDEF(baseGroupIdx, baseSegmentIdx, baseFrame, lstDefs);
     }
 
-    private ObjItem handleSEGDEF()
+    private OMFItem handleSEGDEF()
     {
         byte attributes = getByteAndUpdateChecksum();
         byte A = (byte) (attributes >> 5);
@@ -342,10 +342,10 @@ public class ObjParserImpl implements ObjParser
         int classNameIdx = getByteAndUpdateChecksum();
         int overlayNameIdx = getByteAndUpdateChecksum();
 
-        return new ObjItemSEGDEF(A, C, Big, P, segmentLength, segmentNameIdx, classNameIdx, overlayNameIdx);
+        return new OMFItemSEGDEF(A, C, Big, P, segmentLength, segmentNameIdx, classNameIdx, overlayNameIdx);
     }
 
-    private ObjItem handleTHEADR()
+    private OMFItem handleTHEADR()
     {
         StringBuilder bldr = new StringBuilder();
         int length = getByteAndUpdateChecksum();
@@ -354,7 +354,7 @@ public class ObjParserImpl implements ObjParser
             bldr.append((char) getByteAndUpdateChecksum());
         }
 
-        return new ObjItemTHEADR(bldr.toString());
+        return new OMFItemTHEADR(bldr.toString());
     }
 
     /// ////////////////////////////////////////////////////////

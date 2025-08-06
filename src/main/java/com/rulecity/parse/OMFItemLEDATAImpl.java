@@ -1,12 +1,12 @@
 package com.rulecity.parse;
 
-public class ObjItemLEDATAImpl implements ObjItem, ObjItemLEDATA
+public class OMFItemLEDATAImpl implements OMFItem, OMFItemLEDATA
 {
     private final byte segmentIndex;
     private final int enumeratedDataOffset;
     private final byte[] arrBytes;
 
-    public ObjItemLEDATAImpl(byte segmentIndex, int enumeratedDataOffset, byte[] arrBytes)
+    public OMFItemLEDATAImpl(byte segmentIndex, int enumeratedDataOffset, byte[] arrBytes)
     {
         this.segmentIndex = segmentIndex;
         this.enumeratedDataOffset = enumeratedDataOffset;

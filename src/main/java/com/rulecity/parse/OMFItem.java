@@ -1,6 +1,6 @@
 package com.rulecity.parse;
 
-public interface ObjItem
+public interface OMFItem
 {
     String getTypeString();
 

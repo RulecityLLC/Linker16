@@ -4,11 +4,11 @@ import com.rulecity.parse.data.Communal;
 
 import java.util.List;
 
-public class ObjItemCOMDEFImpl implements ObjItem, ObjItemCOMDEF
+public class OMFItemCOMDEFImpl implements OMFItem, OMFItemCOMDEF
 {
     private final List<Communal> lstCommunal;
 
-    public ObjItemCOMDEFImpl(List<Communal> lstCommunal)
+    public OMFItemCOMDEFImpl(List<Communal> lstCommunal)
     {
         this.lstCommunal = lstCommunal;
     }

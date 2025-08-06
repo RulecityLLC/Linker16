@@ -2,12 +2,12 @@ package com.rulecity.parse;
 
 import java.util.List;
 
-public class ObjItemGRPDEF implements ObjItem
+public class OMFItemGRPDEF implements OMFItem
 {
     private final byte grpNameIdx;
     private final List<Byte> lstSegDefs;
 
-    public ObjItemGRPDEF(byte grpNameIdx, List<Byte> lstSegDefs)
+    public OMFItemGRPDEF(byte grpNameIdx, List<Byte> lstSegDefs)
     {
         this.grpNameIdx = grpNameIdx;
         this.lstSegDefs = lstSegDefs;

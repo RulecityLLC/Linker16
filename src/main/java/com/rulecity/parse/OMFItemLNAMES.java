@@ -2,11 +2,11 @@ package com.rulecity.parse;
 
 import java.util.List;
 
-public class ObjItemLNAMES implements ObjItem
+public class OMFItemLNAMES implements OMFItem
 {
     private final List<String> names;
 
-    public ObjItemLNAMES(List<String> names)
+    public OMFItemLNAMES(List<String> names)
     {
         this.names = names;
     }

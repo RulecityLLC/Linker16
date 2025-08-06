@@ -1,6 +1,6 @@
 package com.rulecity.parse;
 
-public class ObjItemSEGDEF implements ObjItem
+public class OMFItemSEGDEF implements OMFItem
 {
     private final byte A;
     private final byte C;
@@ -11,7 +11,7 @@ public class ObjItemSEGDEF implements ObjItem
     private final int classNameIdx;
     private final int overlayNameIdx;
 
-    public ObjItemSEGDEF(byte a, byte c, boolean big, boolean p, int segmentLength, int segmentNameIdx, int classNameIdx, int overlayNameIdx)
+    public OMFItemSEGDEF(byte a, byte c, boolean big, boolean p, int segmentLength, int segmentNameIdx, int classNameIdx, int overlayNameIdx)
     {
         this.A = a;
         this.C = c;

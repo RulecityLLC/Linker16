@@ -1,6 +1,6 @@
 package com.rulecity.parse;
 
-public interface ObjItemLEDATA
+public interface OMFItemLEDATA
 {
     byte getSegmentIdx();
 

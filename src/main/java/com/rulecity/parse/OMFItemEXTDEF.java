@@ -4,11 +4,11 @@ import com.rulecity.parse.data.ExternalNamesDefinition;
 
 import java.util.List;
 
-public class ObjItemEXTDEF implements ObjItem
+public class OMFItemEXTDEF implements OMFItem
 {
     private final List<ExternalNamesDefinition> lstDefs;
 
-    public ObjItemEXTDEF(List<ExternalNamesDefinition> lstDefs)
+    public OMFItemEXTDEF(List<ExternalNamesDefinition> lstDefs)
     {
         this.lstDefs = lstDefs;
     }

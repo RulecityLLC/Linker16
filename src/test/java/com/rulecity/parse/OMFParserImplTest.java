@@ -9,7 +9,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ObjParserImplTest
+public class OMFParserImplTest
 {
     @Test
     public void COMDEFTest1()
@@ -23,13 +23,13 @@ public class ObjParserImplTest
         };
 
         // ACT
-        var instance = new ObjParserImpl();
-        List<ObjItem> objItems = instance.parseBinary(arrRecord);
+        var instance = new OMFParserImpl();
+        List<OMFItem> objItems = instance.parseBinary(arrRecord);
 
         // ASSERT
         assertEquals(1, objItems.size());
-        ObjItem item = objItems.getFirst();
-        var itemCOMDEF = (ObjItemCOMDEF) item;
+        OMFItem item = objItems.getFirst();
+        var itemCOMDEF = (OMFItemCOMDEF) item;
         List<Communal> lstCommunal = itemCOMDEF.getCommualList();
         assertEquals(3, lstCommunal.size());
 
@@ -53,13 +53,13 @@ public class ObjParserImplTest
         byte[] arrRecord = { b(0x88), 0x4, 0, 0, b(0xA2), 1, b(0xD1) };
 
         // ACT
-        var instance = new ObjParserImpl();
-        List<ObjItem> objItems = instance.parseBinary(arrRecord);
+        var instance = new OMFParserImpl();
+        List<OMFItem> objItems = instance.parseBinary(arrRecord);
 
         // ASSERT
         assertEquals(1, objItems.size());
-        ObjItem item = objItems.getFirst();
-        ObjItemCOMENT itemCOMENT = (ObjItemCOMENT) item;
+        OMFItem item = objItems.getFirst();
+        OMFItemCOMENT itemCOMENT = (OMFItemCOMENT) item;
         assertEquals(arrRecord[3], itemCOMENT.getCommentType());
         assertEquals(arrRecord[4], itemCOMENT.getCommentClass());
         byte[] bytes = itemCOMENT.getBytes();
@@ -74,13 +74,13 @@ public class ObjParserImplTest
         b(0x85),b(0x0C),b(0x56),1,b(0x90) };
 
         // ACT
-        var instance = new ObjParserImpl();
-        List<ObjItem> objItems = instance.parseBinary(arrRecord);
+        var instance = new OMFParserImpl();
+        List<OMFItem> objItems = instance.parseBinary(arrRecord);
 
         // ASSERT
         assertEquals(1, objItems.size());
-        ObjItem item = objItems.getFirst();
-        ObjItemFIXUPP itemFIXUPP = (ObjItemFIXUPP) item;
+        OMFItem item = objItems.getFirst();
+        OMFItemFIXUPP itemFIXUPP = (OMFItemFIXUPP) item;
         List<Fixup> fixups = itemFIXUPP.getFixups();
         assertEquals(2, fixups.size());
 
@@ -124,13 +124,13 @@ public class ObjParserImplTest
         };
 
         // ACT
-        var instance = new ObjParserImpl();
-        List<ObjItem> objItems = instance.parseBinary(arrRecord);
+        var instance = new OMFParserImpl();
+        List<OMFItem> objItems = instance.parseBinary(arrRecord);
 
         // ASSERT
         assertEquals(1, objItems.size());
-        ObjItem item = objItems.getFirst();
-        ObjItemFIXUPP itemFIXUPP = (ObjItemFIXUPP) item;
+        OMFItem item = objItems.getFirst();
+        OMFItemFIXUPP itemFIXUPP = (OMFItemFIXUPP) item;
         List<Fixup> fixups = itemFIXUPP.getFixups();
         assertEquals(6, fixups.size());
 
@@ -216,13 +216,13 @@ public class ObjParserImplTest
         };
 
         // ACT
-        var instance = new ObjParserImpl();
-        List<ObjItem> objItems = instance.parseBinary(arrRecord);
+        var instance = new OMFParserImpl();
+        List<OMFItem> objItems = instance.parseBinary(arrRecord);
 
         // ASSERT
         assertEquals(1, objItems.size());
-        ObjItem item = objItems.getFirst();
-        ObjItemFIXUPP itemFIXUPP = (ObjItemFIXUPP) item;
+        OMFItem item = objItems.getFirst();
+        OMFItemFIXUPP itemFIXUPP = (OMFItemFIXUPP) item;
         List<Fixup> fixups = itemFIXUPP.getFixups();
         List<Thread> threads = itemFIXUPP.getThreads();
         assertEquals(6, threads.size());
@@ -273,13 +273,13 @@ public class ObjParserImplTest
         };
 
         // ACT
-        var instance = new ObjParserImpl();
-        List<ObjItem> objItems = instance.parseBinary(arrRecord);
+        var instance = new OMFParserImpl();
+        List<OMFItem> objItems = instance.parseBinary(arrRecord);
 
         // ASSERT
         assertEquals(1, objItems.size());
-        ObjItem item = objItems.getFirst();
-        ObjItemFIXUPP itemFIXUPP = (ObjItemFIXUPP) item;
+        OMFItem item = objItems.getFirst();
+        OMFItemFIXUPP itemFIXUPP = (OMFItemFIXUPP) item;
         List<Fixup> fixups = itemFIXUPP.getFixups();
         List<Thread> threads = itemFIXUPP.getThreads();
         assertEquals(0, threads.size());
@@ -307,13 +307,13 @@ public class ObjParserImplTest
         };
 
         // ACT
-        var instance = new ObjParserImpl();
-        List<ObjItem> objItems = instance.parseBinary(arrRecord);
+        var instance = new OMFParserImpl();
+        List<OMFItem> objItems = instance.parseBinary(arrRecord);
 
         // ASSERT
         assertEquals(1, objItems.size());
-        ObjItem item = objItems.getFirst();
-        ObjItemFIXUPP itemFIXUPP = (ObjItemFIXUPP) item;
+        OMFItem item = objItems.getFirst();
+        OMFItemFIXUPP itemFIXUPP = (OMFItemFIXUPP) item;
         List<Fixup> fixups = itemFIXUPP.getFixups();
         List<Thread> threads = itemFIXUPP.getThreads();
         assertEquals(0, threads.size());
@@ -340,13 +340,13 @@ public class ObjParserImplTest
         byte[] arrRecord = { b(0xA0), 8, 0, 1, 0,0,b(0x8D), b(0x1E), b(0x10), 0, b(0x9C) };
 
         // ACT
-        var instance = new ObjParserImpl();
-        List<ObjItem> objItems = instance.parseBinary(arrRecord);
+        var instance = new OMFParserImpl();
+        List<OMFItem> objItems = instance.parseBinary(arrRecord);
 
         // ASSERT
         assertEquals(1, objItems.size());
-        ObjItem item = objItems.getFirst();
-        var itemLEDATA = (ObjItemLEDATA) item;
+        OMFItem item = objItems.getFirst();
+        var itemLEDATA = (OMFItemLEDATA) item;
         assertEquals(arrRecord[3], itemLEDATA.getSegmentIdx());
         assertEquals(0, itemLEDATA.getEnumeratedDataOffset());
         byte[] arrBytes = itemLEDATA.getBytes();

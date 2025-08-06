@@ -5,7 +5,7 @@ import com.rulecity.parse.data.Thread;
 
 import java.util.List;
 
-public interface ObjItemFIXUPP
+public interface OMFItemFIXUPP
 {
     List<Fixup> getFixups();
 

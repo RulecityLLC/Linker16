@@ -1,6 +1,6 @@
 package com.rulecity.parse;
 
-public interface ObjItemCOMENT
+public interface OMFItemCOMENT
 {
     /*
         private final byte commentType;

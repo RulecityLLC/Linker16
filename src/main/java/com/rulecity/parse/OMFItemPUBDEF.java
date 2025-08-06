@@ -4,14 +4,14 @@ import com.rulecity.parse.data.PublicNamesDefinition;
 
 import java.util.List;
 
-public class ObjItemPUBDEF implements ObjItem
+public class OMFItemPUBDEF implements OMFItem
 {
     private final byte baseGroupIdx;
     private final byte baseSegmentIdx;
     private final Integer baseFrame;
     private final List<PublicNamesDefinition> lstDefs;
 
-    public ObjItemPUBDEF(byte baseGroupIdx, byte baseSegmentIdx, Integer baseFrame, List<PublicNamesDefinition> lstDefs)
+    public OMFItemPUBDEF(byte baseGroupIdx, byte baseSegmentIdx, Integer baseFrame, List<PublicNamesDefinition> lstDefs)
     {
         this.baseGroupIdx = baseGroupIdx;
         this.baseSegmentIdx = baseSegmentIdx;

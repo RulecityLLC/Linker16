@@ -1,6 +1,6 @@
 package com.rulecity.parse;
 
-public class ObjItemMODEND implements ObjItem
+public class OMFItemMODEND implements OMFItem
 {
     private final boolean isAMainProgramModule;
     private final boolean moduleContainsAStartAddress;
@@ -9,7 +9,7 @@ public class ObjItemMODEND implements ObjItem
     private final Byte targetDatum;
     private final Integer targetDisplacement;
 
-    public ObjItemMODEND(boolean isAMainProgramModule, boolean moduleContainsAStartAddress, Byte endData, Byte frameDatum, Byte targetDatum, Integer targetDisplacement)
+    public OMFItemMODEND(boolean isAMainProgramModule, boolean moduleContainsAStartAddress, Byte endData, Byte frameDatum, Byte targetDatum, Integer targetDisplacement)
     {
         this.isAMainProgramModule = isAMainProgramModule;
         this.moduleContainsAStartAddress = moduleContainsAStartAddress;

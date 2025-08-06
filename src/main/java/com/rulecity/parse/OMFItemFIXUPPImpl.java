@@ -5,12 +5,12 @@ import com.rulecity.parse.data.Thread;
 
 import java.util.List;
 
-public class ObjItemFIXUPPImpl implements ObjItem, ObjItemFIXUPP
+public class OMFItemFIXUPPImpl implements OMFItem, OMFItemFIXUPP
 {
     private final List<Fixup> lstFixups;
     private final List<Thread> lstThreads;
 
-    public ObjItemFIXUPPImpl(List<Fixup> lstFixups, List<Thread> lstThreads)
+    public OMFItemFIXUPPImpl(List<Fixup> lstFixups, List<Thread> lstThreads)
     {
         this.lstFixups = lstFixups;
         this.lstThreads = lstThreads;
