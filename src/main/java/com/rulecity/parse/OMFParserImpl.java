@@ -144,7 +144,7 @@ public class OMFParserImpl implements OMFParser
             bldr.setLength(0);
         }
 
-        return new OMFItemEXTDEF(lstDefs);
+        return new OMFItemEXTDEFImpl(lstDefs);
     }
 
     private OMFItem handleFIXUPP()
