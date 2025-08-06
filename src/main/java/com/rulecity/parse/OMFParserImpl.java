@@ -139,9 +139,7 @@ public class OMFParserImpl implements OMFParser
             byte typeIndex = getByteAndUpdateChecksum();
             count++;
 
-            var entry = new ExternalNamesDefinition();
-            entry.externalNameString = bldr.toString();
-            entry.typeIndex = typeIndex;
+            var entry = new ExternalNamesDefinition(bldr.toString(), typeIndex);
             lstDefs.add(entry);
             bldr.setLength(0);
         }
@@ -312,10 +310,7 @@ public class OMFParserImpl implements OMFParser
             int publicOffset = getWordAndUpdateChecksum();
             byte typeIndex = getByteAndUpdateChecksum();
 
-            var entry = new PublicNamesDefinition();
-            entry.publicNameString = bldr.toString();
-            entry.publicOffset = publicOffset;
-            entry.typeIndex = typeIndex;
+            var entry = new PublicNamesDefinition(bldr.toString(), publicOffset, typeIndex);
             lstDefs.add(entry);
             bldr.setLength(0);
         }

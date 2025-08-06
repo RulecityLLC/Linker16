@@ -1,7 +1,5 @@
 package com.rulecity.parse.data;
 
-public class ExternalNamesDefinition
+public record ExternalNamesDefinition(String externalNameString, byte typeIndex)
 {
-    public String externalNameString;
-    public byte typeIndex;
 }

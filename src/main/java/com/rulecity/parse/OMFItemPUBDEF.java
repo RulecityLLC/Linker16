@@ -31,7 +31,7 @@ public class OMFItemPUBDEF implements OMFItem
         var bldr = new StringBuilder();
         for (PublicNamesDefinition def : lstDefs)
         {
-            bldr.append(def.publicNameString);
+            bldr.append(def.publicNameString());
             bldr.append(" ");
         }
         return bldr.toString();

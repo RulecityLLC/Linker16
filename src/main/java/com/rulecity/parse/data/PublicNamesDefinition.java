@@ -1,8 +1,8 @@
 package com.rulecity.parse.data;
 
-public class PublicNamesDefinition
+public record PublicNamesDefinition(String publicNameString,
+        int publicOffset,
+        byte typeIndex
+)
 {
-    public String publicNameString;
-    public int publicOffset;
-    public byte typeIndex;
 }
