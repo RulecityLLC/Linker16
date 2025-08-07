@@ -26,8 +26,8 @@ public class OMFParserImpl implements OMFParser
         {
             OMFItem item = null;
             checkSum = 0;
-            byte recordType = getByteAndUpdateChecksum();
-            recordLength = getWordAndUpdateChecksum();
+            byte recordType = getSignedByte();
+            recordLength = getWord();
             recordCount = 0;
             item = switch (recordType)
             {
@@ -78,14 +78,14 @@ public class OMFParserImpl implements OMFParser
         StringBuilder bldr = new StringBuilder();
         while (recordCount < (this.recordLength-1))
         {
-            byte len = getByteAndUpdateChecksum();
+            byte len = getSignedByte();
             for (int i = 0; i < len; i++)
             {
-                byte ch = getByteAndUpdateChecksum();
+                byte ch = getSignedByte();
                 bldr.append((char) ch);
             }
-            byte typeIdx = getByteAndUpdateChecksum();
-            byte dataSegmentType = getByteAndUpdateChecksum();
+            byte typeIdx = getSignedByte();
+            byte dataSegmentType = getSignedByte();
             int communalLength = 0;
 
             communalLength = switch (dataSegmentType)
@@ -106,14 +106,14 @@ public class OMFParserImpl implements OMFParser
 
     private OMFItem handleCOMENT()
     {
-        byte commentType = getByteAndUpdateChecksum();
-        byte commentClass = getByteAndUpdateChecksum();
+        byte commentType = getSignedByte();
+        byte commentClass = getSignedByte();
         byte[] arrBytes = new byte[this.recordLength-3];
         int idx = 0;
 
         while (recordCount < (this.recordLength-1))
         {
-            arrBytes[idx++] = getByteAndUpdateChecksum();
+            arrBytes[idx++] = getSignedByte();
         }
 
         return new OMFItemCOMENTImpl(commentType, commentClass, arrBytes);
@@ -127,16 +127,16 @@ public class OMFParserImpl implements OMFParser
 
         while (count < (this.recordLength-1))
         {
-            int length = getByteAndUpdateChecksum();
+            int length = getSignedByte();
             count++;
 
             for (int i = 0; i < length; i++)
             {
-                bldr.append((char) getByteAndUpdateChecksum());
+                bldr.append((char) getSignedByte());
                 count++;
             }
 
-            byte typeIndex = getByteAndUpdateChecksum();
+            byte typeIndex = getSignedByte();
             count++;
 
             var entry = new ExternalNamesDefinition(bldr.toString(), typeIndex);
@@ -155,12 +155,12 @@ public class OMFParserImpl implements OMFParser
         // thread and fixup records can be repeated
         while (recordCount < (this.recordLength-1))
         {
-            byte firstByte = getByteAndUpdateChecksum();
+            int firstByte = getUnsignedByteAsInt();
 
             // FIXUP record
             if ((firstByte & 0x80) != 0)
             {
-                int locat = ((firstByte << 8) | getByteAndUpdateChecksum()) & 0xFFFF;   // force to be unsigned
+                int locat = ((firstByte << 8) | getUnsignedByteAsInt());
                 boolean segmentRelativeFixups = (firstByte & 0x40) != 0;
                 byte location = (byte) ((firstByte >> 2) & 0xF);
                 int dataRecordOffset = locat & 1023;    // lower 10 bits
@@ -173,7 +173,7 @@ public class OMFParserImpl implements OMFParser
                 boolean threadFieldSpecifiesFrame = (firstByte & 0x40) != 0;
                 int method = (firstByte >> 2) & 7;
                 int threadNum = (firstByte & 3);
-                int index = getByteAndUpdateChecksum(); // it's unclear to me whether this can ever be more than 1 byte. for now, assuming 1 byte.
+                int index = getSignedByte(); // it's unclear to me whether this can ever be more than 1 byte. for now, assuming 1 byte.
                 lstThreads.add(new Thread(threadFieldSpecifiesFrame, method, threadNum, index));
             }
         }
@@ -183,7 +183,7 @@ public class OMFParserImpl implements OMFParser
 
     private Fixup getFixup(boolean segmentRelativeFixups, byte location, int dataRecordOffset)
     {
-        byte fixDat = getByteAndUpdateChecksum();
+        byte fixDat = getSignedByte();
         boolean frameSpecifiedByPreviousThreadFieldRef = (fixDat & 0x80) != 0;
         int frame = (fixDat >> 4) & 7;
         boolean targetSpecifiedByPreviousThreadFieldRef = (fixDat & 8) != 0;
@@ -191,16 +191,16 @@ public class OMFParserImpl implements OMFParser
         boolean P = (targt & 4) != 0;
 
         Byte frameDatum = null;
-        if ((!frameSpecifiedByPreviousThreadFieldRef) && (frame <= 2)) frameDatum = getByteAndUpdateChecksum();
+        if ((!frameSpecifiedByPreviousThreadFieldRef) && (frame <= 2)) frameDatum = getSignedByte();
 
         Byte targetDatum = null;
 
-        if (!targetSpecifiedByPreviousThreadFieldRef) targetDatum = getByteAndUpdateChecksum();
+        if (!targetSpecifiedByPreviousThreadFieldRef) targetDatum = getSignedByte();
 
         Integer targetDisplacement = null;
         if (!P)
         {
-            targetDisplacement = getWordAndUpdateChecksum();
+            targetDisplacement = getWord();
         }
         return new Fixup(segmentRelativeFixups, location, dataRecordOffset, frameSpecifiedByPreviousThreadFieldRef,
                 frame, targetSpecifiedByPreviousThreadFieldRef, targt, frameDatum, targetDatum, targetDisplacement);
@@ -211,17 +211,17 @@ public class OMFParserImpl implements OMFParser
         int count = 0;
         List<Byte> lstSegDefs = new ArrayList<>();
 
-        byte grpNameIdx = getByteAndUpdateChecksum();
+        byte grpNameIdx = getSignedByte();
         count++;
 
         while (count < (this.recordLength-1))
         {
-            byte index = getByteAndUpdateChecksum();
+            byte index = getSignedByte();
             count++;
 
             if (index != (byte) 0xFF) throw new RuntimeException("Index was not FFh.  I don't know how to handle this.");
 
-            byte segmentDefinition = getByteAndUpdateChecksum();
+            byte segmentDefinition = getSignedByte();
             count++;
             lstSegDefs.add(segmentDefinition);
         }
@@ -231,14 +231,14 @@ public class OMFParserImpl implements OMFParser
 
     private OMFItem handleLEDATA()
     {
-        byte segmentIndex = getByteAndUpdateChecksum();
-        int enumeratedDataOffset = getWordAndUpdateChecksum();
+        byte segmentIndex = getSignedByte();
+        int enumeratedDataOffset = getWord();
         byte[] arrBytes = new byte[this.recordLength-4];
         int idx = 0;
 
         while (recordCount < (this.recordLength-1))
         {
-            arrBytes[idx++] = getByteAndUpdateChecksum();
+            arrBytes[idx++] = getSignedByte();
         }
 
         return new OMFItemLEDATAImpl(segmentIndex, enumeratedDataOffset, arrBytes);
@@ -251,11 +251,11 @@ public class OMFParserImpl implements OMFParser
         int count = 0;
         while (count < (this.recordLength-1))
         {
-            int length = getByteAndUpdateChecksum();
+            int length = getSignedByte();
             count++;
             for (int i = 0; i < length; i++)
             {
-                bldr.append((char) getByteAndUpdateChecksum());
+                bldr.append((char) getSignedByte());
                 count++;
             }
             names.add(bldr.toString());
@@ -267,7 +267,7 @@ public class OMFParserImpl implements OMFParser
 
     private OMFItem handleMODEND()
     {
-        byte moduleType = getByteAndUpdateChecksum();
+        byte moduleType = getSignedByte();
         Byte endData = null, frameDatum = null, targetDatum = null;
         Integer targetDisplacement = null;
 
@@ -276,10 +276,10 @@ public class OMFParserImpl implements OMFParser
 
         if (moduleContainsAStartAddress)
         {
-            endData = getByteAndUpdateChecksum();
-            frameDatum = getByteAndUpdateChecksum();
-            targetDatum = getByteAndUpdateChecksum();
-            targetDisplacement = getWordAndUpdateChecksum();
+            endData = getSignedByte();
+            frameDatum = getSignedByte();
+            targetDatum = getSignedByte();
+            targetDisplacement = getWord();
         }
 
         return new OMFItemMODEND(isAMainProgramModule, moduleContainsAStartAddress, endData, frameDatum, targetDatum, targetDisplacement);
@@ -290,25 +290,25 @@ public class OMFParserImpl implements OMFParser
         List<PublicNamesDefinition> lstDefs = new ArrayList<>();
         StringBuilder bldr = new StringBuilder();
 
-        byte baseGroupIdx = getByteAndUpdateChecksum();
-        byte baseSegmentIdx = getByteAndUpdateChecksum();
+        byte baseGroupIdx = getSignedByte();
+        byte baseSegmentIdx = getSignedByte();
         Integer baseFrame = null;
 
         if (baseSegmentIdx == 0)
         {
-            baseFrame = getWordAndUpdateChecksum();
+            baseFrame = getWord();
         }
 
         while (recordCount < (this.recordLength-1))
         {
-            int length = getByteAndUpdateChecksum();
+            int length = getSignedByte();
             for (int i = 0; i < length; i++)
             {
-                bldr.append((char) getByteAndUpdateChecksum());
+                bldr.append((char) getSignedByte());
             }
 
-            int publicOffset = getWordAndUpdateChecksum();
-            byte typeIndex = getByteAndUpdateChecksum();
+            int publicOffset = getWord();
+            byte typeIndex = getSignedByte();
 
             var entry = new PublicNamesDefinition(bldr.toString(), publicOffset, typeIndex);
             lstDefs.add(entry);
@@ -320,7 +320,7 @@ public class OMFParserImpl implements OMFParser
 
     private OMFItem handleSEGDEF()
     {
-        byte attributes = getByteAndUpdateChecksum();
+        byte attributes = getSignedByte();
         byte A = (byte) (attributes >> 5);
         byte C = (byte) ((attributes >> 2) & 7);
         boolean Big = (attributes & 2) != 0;
@@ -332,10 +332,10 @@ public class OMFParserImpl implements OMFParser
             throw new RuntimeException("A is 0 so the optional Frame Number word and Offset byte need to be read in.  This is currently unsupported");
         }
 
-        int segmentLength = getWordAndUpdateChecksum();
-        int segmentNameIdx = getByteAndUpdateChecksum();
-        int classNameIdx = getByteAndUpdateChecksum();
-        int overlayNameIdx = getByteAndUpdateChecksum();
+        int segmentLength = getWord();
+        int segmentNameIdx = getSignedByte();
+        int classNameIdx = getSignedByte();
+        int overlayNameIdx = getSignedByte();
 
         return new OMFItemSEGDEF(A, C, Big, P, segmentLength, segmentNameIdx, classNameIdx, overlayNameIdx);
     }
@@ -343,10 +343,10 @@ public class OMFParserImpl implements OMFParser
     private OMFItem handleTHEADR()
     {
         StringBuilder bldr = new StringBuilder();
-        int length = getByteAndUpdateChecksum();
+        int length = getSignedByte();
         for (int i = 0; i < length; i++)
         {
-            bldr.append((char) getByteAndUpdateChecksum());
+            bldr.append((char) getSignedByte());
         }
 
         return new OMFItemTHEADR(bldr.toString());
@@ -354,7 +354,7 @@ public class OMFParserImpl implements OMFParser
 
     /// ////////////////////////////////////////////////////////
 
-    private byte getByteAndUpdateChecksum()
+    private byte getSignedByte()
     {
         byte tmp = src[idxSrc++];
         checkSum -= tmp;
@@ -362,34 +362,37 @@ public class OMFParserImpl implements OMFParser
         return tmp;
     }
 
-    private int getWordAndUpdateChecksum()
+    private int getUnsignedByteAsInt()
     {
-        // & 0xFFFF because java uses signed integers by default, and we want to ensure our result is unsigned
-        return ((getByteAndUpdateChecksum() & 0xFF) | (getByteAndUpdateChecksum() << 8)) & 0xFFFF;
+        return getSignedByte() & 0xFF;
+    }
+
+    private int getWord()
+    {
+        return (getUnsignedByteAsInt() | (getUnsignedByteAsInt() << 8));
     }
 
     private int getCommunalField()
     {
         int result = 0;
-        int val = getByteAndUpdateChecksum() & 0xFF;
+        int val = getUnsignedByteAsInt();
 
         if (val < 0x80) return val;
         else if (val == 0x81)
         {
-            result = getWordAndUpdateChecksum();
+            result = getWord();
         }
         else if (val == 0x84)
         {
-            result = (getByteAndUpdateChecksum() & 0xFF) | ((getByteAndUpdateChecksum() & 0xFF) << 8) |
-                    ((getByteAndUpdateChecksum() & 0xFF) << 16);
+            result = getUnsignedByteAsInt() | (getUnsignedByteAsInt() << 8) |
+                    (getUnsignedByteAsInt() << 16);
         }
         else if (val == 0x88)
         {
-            result = (getByteAndUpdateChecksum() & 0xFF) | ((getByteAndUpdateChecksum() & 0xFF) << 8) |
-                    ((getByteAndUpdateChecksum() & 0xFF) << 16) | ((getByteAndUpdateChecksum() & 0xFF) << 24);
+            result = getUnsignedByteAsInt() | (getUnsignedByteAsInt() << 8) |
+                    (getUnsignedByteAsInt() << 16) | (getUnsignedByteAsInt() << 24);
         }
 
         return result;
     }
-
 }
