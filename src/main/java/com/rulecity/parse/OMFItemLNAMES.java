@@ -2,31 +2,7 @@ package com.rulecity.parse;
 
 import java.util.List;
 
-public class OMFItemLNAMES implements OMFItem
+public interface OMFItemLNAMES
 {
-    private final List<String> names;
-
-    public OMFItemLNAMES(List<String> names)
-    {
-        this.names = names;
-    }
-
-    @Override
-    public String getTypeString()
-    {
-        return "LNAMES (96h)";
-    }
-
-    @Override
-    public String getDataString()
-    {
-        StringBuilder result = new StringBuilder();
-
-        for (String name : names)
-        {
-            result.append(name);
-            result.append(" ");
-        }
-        return result.toString();
-    }
+    List<String> getNames();
 }

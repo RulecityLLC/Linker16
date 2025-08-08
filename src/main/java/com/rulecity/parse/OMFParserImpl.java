@@ -262,7 +262,7 @@ public class OMFParserImpl implements OMFParser
             bldr.setLength(0);
         }
 
-        return new OMFItemLNAMES(names);
+        return new OMFItemLNAMESImpl(names);
     }
 
     private OMFItem handleMODEND()
@@ -337,7 +337,7 @@ public class OMFParserImpl implements OMFParser
         int classNameIdx = getSignedByte();
         int overlayNameIdx = getSignedByte();
 
-        return new OMFItemSEGDEF(A, C, Big, P, segmentLength, segmentNameIdx, classNameIdx, overlayNameIdx);
+        return new OMFItemSEGDEFImpl(A, C, Big, P, segmentLength, segmentNameIdx, classNameIdx, overlayNameIdx);
     }
 
     private OMFItem handleTHEADR()

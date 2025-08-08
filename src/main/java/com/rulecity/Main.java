@@ -1,5 +1,7 @@
 package com.rulecity;
 
+import com.rulecity.aggregation.OMFFile;
+import com.rulecity.aggregation.OMFFileImpl;
 import com.rulecity.parse.OMFItem;
 import com.rulecity.parse.OMFParser;
 import com.rulecity.parse.OMFParserImpl;
@@ -30,5 +32,7 @@ public class Main
             System.out.println(item.getTypeString() + ":");
             System.out.println(item.getDataString());
         }
+
+        OMFFile fileObj = new OMFFileImpl(objItems);
     }
 }

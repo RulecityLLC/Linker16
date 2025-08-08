@@ -14,10 +14,12 @@ public class OMFFileImpl implements OMFFile
 
     List<Communal> lstCommunal = new ArrayList<>();
     List<ExternalNamesDefinition> lstExternalNames = new ArrayList<>();
+    private List<String> lstNames;
 
     public OMFFileImpl(List<OMFItem> objItems)
     {
         this.objItems = objItems;
+        processIfNeeded();
     }
 
     private void processIfNeeded()
@@ -34,10 +36,18 @@ public class OMFFileImpl implements OMFFile
             {
                 // I don't think processing comments is necessary for now
             }
-            else if (item instanceof OMFItemEXTDEF)
+            else if (item instanceof OMFItemEXTDEF itemEXTDEF)
             {
-                var itemEXTDEF = (OMFItemEXTDEF) item;
                 lstExternalNames.addAll(itemEXTDEF.getExternalNamesDefinitions());
+            }
+            else if (item instanceof OMFItemLNAMESImpl itemLNAMES)
+            {
+                // there should only be one of these entries
+                lstNames = itemLNAMES.getNames();
+            }
+            else if (item instanceof OMFItemTHEADR itemTHEADR)
+            {
+                // nothing to do here
             }
             else
             {
