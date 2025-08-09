@@ -15,6 +15,7 @@ public class OMFFileImpl implements OMFFile
     List<Communal> lstCommunal = new ArrayList<>();
     List<ExternalNamesDefinition> lstExternalNames = new ArrayList<>();
     private List<String> lstNames;
+    private final List<SegmentDefProcessed> lstSegDef = new ArrayList<>();
 
     public OMFFileImpl(List<OMFItem> objItems)
     {
@@ -44,6 +45,11 @@ public class OMFFileImpl implements OMFFile
             {
                 // there should only be one of these entries
                 lstNames = itemLNAMES.getNames();
+            }
+            else if (item instanceof OMFItemSEGDEF itemSEGDEF)
+            {
+                SegmentDefProcessed processed1 = itemSEGDEF.getProcessed(lstNames);
+                lstSegDef.add(processed1);
             }
             else if (item instanceof OMFItemTHEADR itemTHEADR)
             {

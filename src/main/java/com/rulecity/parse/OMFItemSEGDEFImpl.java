@@ -1,6 +1,10 @@
 package com.rulecity.parse;
 
-public class OMFItemSEGDEFImpl implements OMFItem
+import com.rulecity.aggregation.SegmentDefProcessed;
+
+import java.util.List;
+
+public class OMFItemSEGDEFImpl implements OMFItem, OMFItemSEGDEF
 {
     private final byte A;
     private final byte C;
@@ -57,5 +61,36 @@ public class OMFItemSEGDEFImpl implements OMFItem
             default -> "Unknown C value!";
         };
         return String.format("A: %s. C: %s.\nSegment len: %xh. Segment name idx: %xh. ", AStr, CStr, segmentLength, segmentNameIdx);
+    }
+
+    @Override
+    public SegmentDefProcessed getProcessed(List<String> lstLNames)
+    {
+        Alignment alignment = switch (A)
+        {
+            case 0 -> Alignment.ABSOLUTE;
+            case 1 -> Alignment.BYTE_ALIGNED;
+            case 2 -> Alignment.WORD_ALIGNED;
+            case 3 -> Alignment.PARAGRAPH_ALIGNED;
+            case 4 -> Alignment.PAGE_ALIGNED;
+            case 5 -> Alignment.DOUBLE_WORD_ALIGNED;
+            default -> Alignment.UNKNOWN;
+        };
+
+        Combination combination = switch (C)
+        {
+            case 0 -> Combination.PRIVATE;
+            case 2, 4, 7 -> Combination.PUBLIC;
+            case 5 -> Combination.STACK;
+            case 6 -> Combination.COMMON;
+            default -> Combination.UNKNOWN;
+        };
+
+        int length = (!big) || (this.segmentLength != 0) ? this.segmentLength : 1 << 16;   // I didn't test the 'big==true' case exhaustively
+
+        // the spec says that the segmentNameIdx and classNameIdx must be defined, so no need to check to see if they refer to valid strings
+        return new SegmentDefProcessed(length, alignment, combination,
+                lstLNames.get(this.segmentNameIdx-1),
+                lstLNames.get(this.classNameIdx-1));
     }
 }
