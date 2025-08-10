@@ -3,6 +3,7 @@ package com.rulecity.aggregation;
 import com.rulecity.parse.*;
 import com.rulecity.parse.data.Communal;
 import com.rulecity.parse.data.ExternalNamesDefinition;
+import com.rulecity.parse.data.GroupDef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,8 @@ public class OMFFileImpl implements OMFFile
     List<ExternalNamesDefinition> lstExternalNames = new ArrayList<>();
     private List<String> lstNames;
     private final List<SegmentDefProcessed> lstSegDef = new ArrayList<>();
+    private final List<GroupDefProcessed> lstGrpDef = new ArrayList<>();
+    private final List<PublicNamesDefinitionProcessed> lstPubNames = new ArrayList<>();
 
     public OMFFileImpl(List<OMFItem> objItems)
     {
@@ -41,10 +44,26 @@ public class OMFFileImpl implements OMFFile
             {
                 lstExternalNames.addAll(itemEXTDEF.getExternalNamesDefinitions());
             }
+            else if (item instanceof OMFItemGRPDEF itemGRPDEF)
+            {
+                GroupDef groupDef = itemGRPDEF.getGroupDef();
+                String nameGroup = lstNames.get(groupDef.grpNameIdx());
+                List<SegmentDefProcessed> lstSegDefsProcessed = groupDef.lstSegDefIndices().stream()
+                        .map(index -> lstSegDef.get(index))
+                        .toList();
+                var groupDefProcessed = new GroupDefProcessed(nameGroup, lstSegDefsProcessed);
+                lstGrpDef.add(groupDefProcessed);
+            }
             else if (item instanceof OMFItemLNAMESImpl itemLNAMES)
             {
                 // there should only be one of these entries
                 lstNames = itemLNAMES.getNames();
+            }
+            else if (item instanceof OMFItemPUBDEF itemPUBDEF)
+            {
+                // not sure if these comes up multiple times; we'll add to a list just to be safe
+                PublicNamesDefinitionProcessed def = itemPUBDEF.getDef();
+                lstPubNames.add(def);
             }
             else if (item instanceof OMFItemSEGDEF itemSEGDEF)
             {

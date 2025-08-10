@@ -226,7 +226,7 @@ public class OMFParserImpl implements OMFParser
             lstSegDefs.add(segmentDefinition);
         }
 
-        return new OMFItemGRPDEF(grpNameIdx, lstSegDefs);
+        return new OMFItemGRPDEFImpl(grpNameIdx, lstSegDefs);
     }
 
     private OMFItem handleLEDATA()
@@ -315,7 +315,7 @@ public class OMFParserImpl implements OMFParser
             bldr.setLength(0);
         }
 
-        return new OMFItemPUBDEF(baseGroupIdx, baseSegmentIdx, baseFrame, lstDefs);
+        return new OMFItemPUBDEFImpl(baseGroupIdx, baseSegmentIdx, baseFrame, lstDefs);
     }
 
     private OMFItem handleSEGDEF()
