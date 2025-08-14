@@ -1,4 +1,4 @@
-package com.rulecity.aggregation;
+package com.rulecity.parse.data;
 
 /**
  * This is 'processed' because it strips out the type index that isn't used

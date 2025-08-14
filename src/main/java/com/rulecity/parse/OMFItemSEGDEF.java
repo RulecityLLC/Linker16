@@ -1,6 +1,6 @@
 package com.rulecity.parse;
 
-import com.rulecity.aggregation.SegmentDefProcessed;
+import com.rulecity.parse.data.SegmentDefProcessed;
 
 import java.util.List;
 

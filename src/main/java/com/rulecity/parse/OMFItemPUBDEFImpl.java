@@ -1,7 +1,7 @@
 package com.rulecity.parse;
 
-import com.rulecity.aggregation.PublicNameAndOffset;
-import com.rulecity.aggregation.PublicNamesDefinitionProcessed;
+import com.rulecity.parse.data.PublicNameAndOffset;
+import com.rulecity.parse.data.PublicNamesDefinitionProcessed;
 import com.rulecity.parse.data.PublicNamesDefinition;
 
 import java.util.List;

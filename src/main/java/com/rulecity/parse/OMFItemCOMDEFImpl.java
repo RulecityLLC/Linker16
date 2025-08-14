@@ -29,7 +29,6 @@ public class OMFItemCOMDEFImpl implements OMFItem, OMFItemCOMDEF
             bdr.append(": ");
             bdr.append(entry.length());
             bdr.append(" bytes");
-            bdr.append('\n');
         }
         return bdr.toString();
     }

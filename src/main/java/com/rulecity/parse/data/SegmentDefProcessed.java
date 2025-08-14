@@ -1,4 +1,4 @@
-package com.rulecity.aggregation;
+package com.rulecity.parse.data;
 
 import com.rulecity.parse.OMFItemSEGDEF;
 

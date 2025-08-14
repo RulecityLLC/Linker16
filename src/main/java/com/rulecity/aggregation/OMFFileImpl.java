@@ -1,9 +1,7 @@
 package com.rulecity.aggregation;
 
 import com.rulecity.parse.*;
-import com.rulecity.parse.data.Communal;
-import com.rulecity.parse.data.ExternalNamesDefinition;
-import com.rulecity.parse.data.GroupDef;
+import com.rulecity.parse.data.*;
 
 import java.util.ArrayList;
 import java.util.List;

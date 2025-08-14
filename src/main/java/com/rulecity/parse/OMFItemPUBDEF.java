@@ -1,6 +1,6 @@
 package com.rulecity.parse;
 
-import com.rulecity.aggregation.PublicNamesDefinitionProcessed;
+import com.rulecity.parse.data.PublicNamesDefinitionProcessed;
 
 public interface OMFItemPUBDEF
 {
