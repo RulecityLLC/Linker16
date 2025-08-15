@@ -38,7 +38,7 @@ public class OMFParserImpl implements OMFParser
                 case (byte) 0x8A ->   // MODEND
                         handleMODEND();
                 case (byte) 0x8C ->   // EXTDEF
-                        handleEXTDEF();
+                        handleEXTDEF(false);
                 case (byte) 0x90 ->   // PUBDEF
                         handlePUBDEF();
                 case (byte) 0x96 ->   // LNAMES
@@ -53,6 +53,8 @@ public class OMFParserImpl implements OMFParser
                         handleLEDATA();
                 case (byte) 0xB0 -> // COMDEF
                         handleCOMDEF();
+                case (byte) 0xB4 -> // LEXTDEF
+                        handleEXTDEF(true);
                 default -> throw new RuntimeException(String.format("Unknown record type %02x", recordType));
             };
 
@@ -119,7 +121,7 @@ public class OMFParserImpl implements OMFParser
         return new OMFItemCOMENTImpl(commentType, commentClass, arrBytes);
     }
 
-    private OMFItem handleEXTDEF()
+    private OMFItem handleEXTDEF(boolean isLEXTDEF)
     {
         int count = 0;
         List<ExternalNamesDefinition> lstDefs = new ArrayList<>();
@@ -144,7 +146,7 @@ public class OMFParserImpl implements OMFParser
             bldr.setLength(0);
         }
 
-        return new OMFItemEXTDEFImpl(lstDefs);
+        return isLEXTDEF ? new OMFItemLEXTDEFImpl(lstDefs) : new OMFItemEXTDEFImpl(lstDefs);
     }
 
     private OMFItem handleFIXUPP()
@@ -281,7 +283,7 @@ public class OMFParserImpl implements OMFParser
             targetDisplacement = getWord();
         }
 
-        return new OMFItemMODEND(isAMainProgramModule, moduleContainsAStartAddress, endData, frameDatum, targetDatum, targetDisplacement);
+        return new OMFItemMODENDImpl(isAMainProgramModule, moduleContainsAStartAddress, endData, frameDatum, targetDatum, targetDisplacement);
     }
 
     private OMFItem handlePUBDEF()

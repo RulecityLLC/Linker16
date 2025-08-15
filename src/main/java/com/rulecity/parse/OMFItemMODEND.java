@@ -1,33 +1,10 @@
 package com.rulecity.parse;
 
-public class OMFItemMODEND implements OMFItem
+public interface OMFItemMODEND
 {
-    private final boolean isAMainProgramModule;
-    private final boolean moduleContainsAStartAddress;
-    private final Byte endData;
-    private final Byte frameDatum;
-    private final Byte targetDatum;
-    private final Integer targetDisplacement;
+    boolean isAMainProgramModule();
 
-    public OMFItemMODEND(boolean isAMainProgramModule, boolean moduleContainsAStartAddress, Byte endData, Byte frameDatum, Byte targetDatum, Integer targetDisplacement)
-    {
-        this.isAMainProgramModule = isAMainProgramModule;
-        this.moduleContainsAStartAddress = moduleContainsAStartAddress;
-        this.endData = endData;
-        this.frameDatum = frameDatum;
-        this.targetDatum = targetDatum;
-        this.targetDisplacement = targetDisplacement;
-    }
+    boolean moduleContainsAStartAddress();
 
-    @Override
-    public String getTypeString()
-    {
-        return "MODEND (8Ah)";
-    }
-
-    @Override
-    public String getDataString()
-    {
-        return "todo";
-    }
+    // not implementing anything else because I'm assuming none of the files I am dealing with will contain a start address
 }
