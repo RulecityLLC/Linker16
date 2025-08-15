@@ -149,8 +149,7 @@ public class OMFParserImpl implements OMFParser
 
     private OMFItem handleFIXUPP()
     {
-        List<Fixup> lstFixups = new ArrayList<>();
-        List<Thread> lstThreads = new ArrayList<>();
+        List<FixupOrThread> lstFixupsOrThreads = new ArrayList<>();
 
         // thread and fixup records can be repeated
         while (recordCount < (this.recordLength-1))
@@ -165,7 +164,7 @@ public class OMFParserImpl implements OMFParser
                 byte location = (byte) ((firstByte >> 2) & 0xF);
                 int dataRecordOffset = locat & 1023;    // lower 10 bits
                 var entry = getFixup(segmentRelativeFixups, location, dataRecordOffset);
-                lstFixups.add(entry);
+                lstFixupsOrThreads.add(new FixupOrThread(entry, null));
             }
             // else it's a THREAD record
             else
@@ -174,11 +173,11 @@ public class OMFParserImpl implements OMFParser
                 int method = (firstByte >> 2) & 7;
                 int threadNum = (firstByte & 3);
                 int index = getSignedByte(); // it's unclear to me whether this can ever be more than 1 byte. for now, assuming 1 byte.
-                lstThreads.add(new Thread(threadFieldSpecifiesFrame, method, threadNum, index));
+                lstFixupsOrThreads.add(new FixupOrThread(null, new Thread(threadFieldSpecifiesFrame, method, threadNum, index)));
             }
         }
 
-        return new OMFItemFIXUPPImpl(lstFixups, lstThreads);
+        return new OMFItemFIXUPPImpl(lstFixupsOrThreads);
     }
 
     private Fixup getFixup(boolean segmentRelativeFixups, byte location, int dataRecordOffset)
