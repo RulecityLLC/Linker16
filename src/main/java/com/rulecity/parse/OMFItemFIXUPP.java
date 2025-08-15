@@ -30,7 +30,7 @@ public interface OMFItemFIXUPP
     enum Location
     {
         LOW_ORDER_BYTE,
-        OFFSET,
+        OFFSET_16BIT,
         SEGMENT,
         POINTER,
         HIGH_ORDER_BYTE,

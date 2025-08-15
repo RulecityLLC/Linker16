@@ -1,12 +1,14 @@
 package com.rulecity.parse;
 
-import com.rulecity.parse.data.Communal;
-import com.rulecity.parse.data.Fixup;
+import com.rulecity.parse.data.*;
 import com.rulecity.parse.data.Thread;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static com.rulecity.parse.OMFItemFIXUPP.FixupMethodFrame.*;
+import static com.rulecity.parse.OMFItemFIXUPP.FixupMethodTarget.*;
+import static com.rulecity.parse.OMFItemFIXUPP.Location.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class OMFParserImplTest
@@ -82,6 +84,7 @@ public class OMFParserImplTest
         OMFItem item = objItems.getFirst();
         OMFItemFIXUPP itemFIXUPP = (OMFItemFIXUPP) item;
         List<Fixup> fixups = itemFIXUPP.getFixups();
+        List<FixupOrThreadProcessed> fixupsOrThreadsProcessed = itemFIXUPP.getFixupsOrThreadsProcessed();
         assertEquals(2, fixups.size());
 
         Fixup fix1 = fixups.get(0);
@@ -96,6 +99,21 @@ public class OMFParserImplTest
         assertNull(fix1.targetDisplacement());
         assertFalse(fix1.targetSpecifiedByPreviousThreadFieldRef());
 
+        FixupOrThreadProcessed fixupOrThreadProcessed1 = fixupsOrThreadsProcessed.get(0);
+        FixupProcessed fixp1 = fixupOrThreadProcessed1.fixup();
+        assertEquals(8, fixp1.dataRecordOffset());
+        assertEquals(FRAME_SPECIFIED_BY_TARGET, fixp1.methodFrame());
+        assertNull(fixp1.idxSegmentFrame());
+        assertNull(fixp1.idxGroupFrame());
+        assertNull(fixp1.idxExternalFrame());
+        assertEquals(OFFSET_16BIT, fixp1.location());
+        assertFalse(fixp1.segmentRelativeFixups());
+        assertEquals(TARGET_SPECIFIED_BY_EXTDEF, fixp1.methodTarget());
+        assertNull(fixp1.idxSegmentTarget());
+        assertNull(fixp1.idxGroupTarget());
+        assertEquals(0, fixp1.idxExternalTarget());
+        assertNull(fixp1.targetDisplacement());
+
         Fixup fix2 = fixups.get(1);
         assertEquals(0x10C, fix2.dataRecordOffset());
         assertEquals(5, fix2.frame());
@@ -107,6 +125,21 @@ public class OMFParserImplTest
         assertEquals(b(1), fix2.targetDatum());
         assertNull(fix2.targetDisplacement());
         assertFalse(fix2.targetSpecifiedByPreviousThreadFieldRef());
+
+        FixupOrThreadProcessed fixupOrThreadProcessed2 = fixupsOrThreadsProcessed.get(1);
+        FixupProcessed fixp2 = fixupOrThreadProcessed2.fixup();
+        assertEquals(0x10C, fixp2.dataRecordOffset());
+        assertEquals(FRAME_SPECIFIED_BY_TARGET, fixp2.methodFrame());
+        assertNull(fixp2.idxSegmentFrame());
+        assertNull(fixp2.idxGroupFrame());
+        assertNull(fixp2.idxExternalFrame());
+        assertEquals(OFFSET_16BIT, fixp2.location());
+        assertFalse(fixp2.segmentRelativeFixups());
+        assertEquals(TARGET_SPECIFIED_BY_EXTDEF, fixp2.methodTarget());
+        assertNull(fixp2.idxSegmentTarget());
+        assertNull(fixp2.idxGroupTarget());
+        assertEquals(0, fixp2.idxExternalTarget());
+        assertNull(fixp2.targetDisplacement());
     }
 
     @Test
@@ -132,8 +165,10 @@ public class OMFParserImplTest
         OMFItem item = objItems.getFirst();
         OMFItemFIXUPP itemFIXUPP = (OMFItemFIXUPP) item;
         List<Fixup> fixups = itemFIXUPP.getFixups();
+        List<FixupOrThreadProcessed> fixupsOrThreadsProcessed = itemFIXUPP.getFixupsOrThreadsProcessed();
         assertEquals(6, fixups.size());
 
+        // 0
         Fixup fix = fixups.get(0);
         assertEquals(1, fix.dataRecordOffset());
         assertEquals(0, fix.frame());
@@ -146,6 +181,22 @@ public class OMFParserImplTest
         assertFalse(fix.targetSpecifiedByPreviousThreadFieldRef());
         assertNull(fix.targetDisplacement());
 
+        FixupOrThreadProcessed fixupOrThreadProcessed = fixupsOrThreadsProcessed.get(0);
+        FixupProcessed fixp = fixupOrThreadProcessed.fixup();
+        assertEquals(1, fixp.dataRecordOffset());
+        assertEquals(FRAME_SPECIFIED_BY_SEGDEF, fixp.methodFrame());
+        assertEquals(0, fixp.idxSegmentFrame());
+        assertNull(fixp.idxGroupFrame());
+        assertNull(fixp.idxExternalFrame());
+        assertEquals(OFFSET_16BIT, fixp.location());
+        assertFalse(fixp.segmentRelativeFixups());
+        assertEquals(TARGET_SPECIFIED_BY_EXTDEF, fixp.methodTarget());
+        assertNull(fixp.idxSegmentTarget());
+        assertNull(fixp.idxGroupTarget());
+        assertEquals(1, fixp.idxExternalTarget());
+        assertNull(fixp.targetDisplacement());
+
+        // 1
         fix = fixups.get(1);
         assertEquals(4, fix.dataRecordOffset());
         assertEquals(0, fix.frame());
@@ -158,6 +209,22 @@ public class OMFParserImplTest
         assertFalse(fix.targetSpecifiedByPreviousThreadFieldRef());
         assertNull(fix.targetDisplacement());
 
+        fixupOrThreadProcessed = fixupsOrThreadsProcessed.get(1);
+        fixp = fixupOrThreadProcessed.fixup();
+        assertEquals(4, fixp.dataRecordOffset());
+        assertEquals(FRAME_SPECIFIED_BY_SEGDEF, fixp.methodFrame());
+        assertEquals(0, fixp.idxSegmentFrame());
+        assertNull(fixp.idxGroupFrame());
+        assertNull(fixp.idxExternalFrame());
+        assertEquals(LOW_ORDER_BYTE, fixp.location());
+        assertFalse(fixp.segmentRelativeFixups());
+        assertEquals(TARGET_SPECIFIED_BY_EXTDEF, fixp.methodTarget());
+        assertNull(fixp.idxSegmentTarget());
+        assertNull(fixp.idxGroupTarget());
+        assertEquals(1, fixp.idxExternalTarget());
+        assertNull(fixp.targetDisplacement());
+
+        // 2
         fix = fixups.get(2);
         assertEquals(6, fix.dataRecordOffset());
         assertEquals(0, fix.frame());
@@ -170,6 +237,22 @@ public class OMFParserImplTest
         assertFalse(fix.targetSpecifiedByPreviousThreadFieldRef());
         assertNull(fix.targetDisplacement());
 
+        fixupOrThreadProcessed = fixupsOrThreadsProcessed.get(2);
+        fixp = fixupOrThreadProcessed.fixup();
+        assertEquals(6, fixp.dataRecordOffset());
+        assertEquals(FRAME_SPECIFIED_BY_SEGDEF, fixp.methodFrame());
+        assertEquals(1, fixp.idxSegmentFrame());
+        assertNull(fixp.idxGroupFrame());
+        assertNull(fixp.idxExternalFrame());
+        assertEquals(POINTER, fixp.location());
+        assertTrue(fixp.segmentRelativeFixups());
+        assertEquals(TARGET_SPECIFIED_BY_SEGDEF, fixp.methodTarget());
+        assertEquals(1, fixp.idxSegmentTarget());
+        assertNull(fixp.idxGroupTarget());
+        assertNull(fixp.idxExternalTarget());
+        assertNull(fixp.targetDisplacement());
+
+        // 3
         fix = fixups.get(3);
         assertEquals(11, fix.dataRecordOffset());
         assertEquals(0, fix.frame());
@@ -182,6 +265,22 @@ public class OMFParserImplTest
         assertFalse(fix.targetSpecifiedByPreviousThreadFieldRef());
         assertNull(fix.targetDisplacement());
 
+        fixupOrThreadProcessed = fixupsOrThreadsProcessed.get(3);
+        fixp = fixupOrThreadProcessed.fixup();
+        assertEquals(11, fixp.dataRecordOffset());
+        assertEquals(FRAME_SPECIFIED_BY_SEGDEF, fixp.methodFrame());
+        assertEquals(0, fixp.idxSegmentFrame());
+        assertNull(fixp.idxGroupFrame());
+        assertNull(fixp.idxExternalFrame());
+        assertEquals(POINTER, fixp.location());
+        assertTrue(fixp.segmentRelativeFixups());
+        assertEquals(TARGET_SPECIFIED_BY_EXTDEF, fixp.methodTarget());
+        assertNull(fixp.idxSegmentTarget());
+        assertNull(fixp.idxGroupTarget());
+        assertEquals(0, fixp.idxExternalTarget());
+        assertNull(fixp.targetDisplacement());
+
+        // 4
         fix = fixups.get(4);
         assertEquals(b(0x10), fix.dataRecordOffset());
         assertEquals(0, fix.frame());
@@ -194,6 +293,22 @@ public class OMFParserImplTest
         assertFalse(fix.targetSpecifiedByPreviousThreadFieldRef());
         assertEquals(0x15, fix.targetDisplacement());
 
+        fixupOrThreadProcessed = fixupsOrThreadsProcessed.get(4);
+        fixp = fixupOrThreadProcessed.fixup();
+        assertEquals(0x10, fixp.dataRecordOffset());
+        assertEquals(FRAME_SPECIFIED_BY_SEGDEF, fixp.methodFrame());
+        assertEquals(0, fixp.idxSegmentFrame());
+        assertNull(fixp.idxGroupFrame());
+        assertNull(fixp.idxExternalFrame());
+        assertEquals(OFFSET_16BIT, fixp.location());
+        assertTrue(fixp.segmentRelativeFixups());
+        assertEquals(TARGET_SPECIFIED_BY_SEGDEF_WITH_DISPLACEMENT, fixp.methodTarget());
+        assertEquals(0, fixp.idxSegmentTarget());
+        assertNull(fixp.idxGroupTarget());
+        assertNull(fixp.idxExternalTarget());
+        assertEquals(0x15, fixp.targetDisplacement());
+
+        // 5
         fix = fixups.get(5);
         assertEquals(b(19), fix.dataRecordOffset());
         assertEquals(0, fix.frame());
@@ -205,6 +320,21 @@ public class OMFParserImplTest
         assertEquals(b(1), fix.targetDatum());
         assertFalse(fix.targetSpecifiedByPreviousThreadFieldRef());
         assertNull(fix.targetDisplacement());
+
+        fixupOrThreadProcessed = fixupsOrThreadsProcessed.get(5);
+        fixp = fixupOrThreadProcessed.fixup();
+        assertEquals(19, fixp.dataRecordOffset());
+        assertEquals(FRAME_SPECIFIED_BY_SEGDEF, fixp.methodFrame());
+        assertEquals(0, fixp.idxSegmentFrame());
+        assertNull(fixp.idxGroupFrame());
+        assertNull(fixp.idxExternalFrame());
+        assertEquals(SEGMENT, fixp.location());
+        assertTrue(fixp.segmentRelativeFixups());
+        assertEquals(TARGET_SPECIFIED_BY_SEGDEF, fixp.methodTarget());
+        assertEquals(0, fixp.idxSegmentTarget());
+        assertNull(fixp.idxGroupTarget());
+        assertNull(fixp.idxExternalTarget());
+        assertNull(fixp.targetDisplacement());
     }
 
     @Test
@@ -223,45 +353,105 @@ public class OMFParserImplTest
         assertEquals(1, objItems.size());
         OMFItem item = objItems.getFirst();
         OMFItemFIXUPP itemFIXUPP = (OMFItemFIXUPP) item;
-        List<Fixup> fixups = itemFIXUPP.getFixups();
         List<Thread> threads = itemFIXUPP.getThreads();
+        List<FixupOrThreadProcessed> fixupsOrThreadsProcessed = itemFIXUPP.getFixupsOrThreadsProcessed();
         assertEquals(6, threads.size());
 
+        // 0
         Thread thread = threads.get(0);
         assertFalse(thread.threadFieldSpecifiesFrame());
         assertEquals(0, thread.method());
         assertEquals(0, thread.threadNum());
         assertEquals(3, thread.index());
 
+        FixupOrThreadProcessed fixupOrThreadProcessed = fixupsOrThreadsProcessed.get(0);
+        ThreadProcessed threadp = fixupOrThreadProcessed.thread();
+        assertEquals(TARGET_SPECIFIED_BY_SEGDEF_WITH_DISPLACEMENT, threadp.methodTarget());
+        assertNull(threadp.methodFrame());
+        assertEquals(0, threadp.threadNum());
+        assertEquals(2, threadp.idxSegment());
+        assertNull(threadp.idxGroup());
+        assertNull(threadp.idxExternal());
+
+        // 1
         thread = threads.get(1);
         assertFalse(thread.threadFieldSpecifiesFrame());
         assertEquals(0, thread.method());
         assertEquals(1, thread.threadNum());
         assertEquals(2, thread.index());
 
+        fixupOrThreadProcessed = fixupsOrThreadsProcessed.get(1);
+        threadp = fixupOrThreadProcessed.thread();
+        assertEquals(TARGET_SPECIFIED_BY_SEGDEF_WITH_DISPLACEMENT, threadp.methodTarget());
+        assertNull(threadp.methodFrame());
+        assertEquals(1, threadp.threadNum());
+        assertEquals(1, threadp.idxSegment());
+        assertNull(threadp.idxGroup());
+        assertNull(threadp.idxExternal());
+
+        // 2
         thread = threads.get(2);
         assertFalse(thread.threadFieldSpecifiesFrame());
         assertEquals(0, thread.method());
         assertEquals(2, thread.threadNum());
         assertEquals(1, thread.index());
 
+        fixupOrThreadProcessed = fixupsOrThreadsProcessed.get(2);
+        threadp = fixupOrThreadProcessed.thread();
+        assertEquals(TARGET_SPECIFIED_BY_SEGDEF_WITH_DISPLACEMENT, threadp.methodTarget());
+        assertNull(threadp.methodFrame());
+        assertEquals(2, threadp.threadNum());
+        assertEquals(0, threadp.idxSegment());
+        assertNull(threadp.idxGroup());
+        assertNull(threadp.idxExternal());
+
+        // 3
         thread = threads.get(3);
         assertFalse(thread.threadFieldSpecifiesFrame());
         assertEquals(0, thread.method());
         assertEquals(3, thread.threadNum());
         assertEquals(4, thread.index());
 
+        fixupOrThreadProcessed = fixupsOrThreadsProcessed.get(3);
+        threadp = fixupOrThreadProcessed.thread();
+        assertEquals(TARGET_SPECIFIED_BY_SEGDEF_WITH_DISPLACEMENT, threadp.methodTarget());
+        assertNull(threadp.methodFrame());
+        assertEquals(3, threadp.threadNum());
+        assertEquals(3, threadp.idxSegment());
+        assertNull(threadp.idxGroup());
+        assertNull(threadp.idxExternal());
+
+        // 4
         thread = threads.get(4);
         assertTrue(thread.threadFieldSpecifiesFrame());
         assertEquals(0, thread.method());
         assertEquals(0, thread.threadNum());
         assertEquals(1, thread.index());
 
+        fixupOrThreadProcessed = fixupsOrThreadsProcessed.get(4);
+        threadp = fixupOrThreadProcessed.thread();
+        assertNull(threadp.methodTarget());
+        assertEquals(FRAME_SPECIFIED_BY_SEGDEF, threadp.methodFrame());
+        assertEquals(0, threadp.threadNum());
+        assertEquals(0, threadp.idxSegment());
+        assertNull(threadp.idxGroup());
+        assertNull(threadp.idxExternal());
+
+        // 5
         thread = threads.get(5);
         assertTrue(thread.threadFieldSpecifiesFrame());
         assertEquals(1, thread.method());
         assertEquals(1, thread.threadNum());
         assertEquals(1, thread.index());
+
+        fixupOrThreadProcessed = fixupsOrThreadsProcessed.get(5);
+        threadp = fixupOrThreadProcessed.thread();
+        assertNull(threadp.methodTarget());
+        assertEquals(FRAME_SPECIFIED_BY_GRPDEF, threadp.methodFrame());
+        assertEquals(1, threadp.threadNum());
+        assertNull(threadp.idxSegment());
+        assertEquals(0, threadp.idxGroup());
+        assertNull(threadp.idxExternal());
     }
 
     @Test

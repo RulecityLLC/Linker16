@@ -7,8 +7,12 @@ public record FixupProcessed(boolean segmentRelativeFixups, OMFItemFIXUPP.Locati
                              OMFItemFIXUPP.FixupMethodFrame methodFrame,
                              Integer threadFieldContainingTargetMethod,
                              OMFItemFIXUPP.FixupMethodTarget methodTarget,
-                             Byte frameDatum,
-                             Byte targetDatum,
+                             Integer idxSegmentFrame,
+                             Integer idxGroupFrame,
+                             Integer idxExternalFrame,
+                             Integer idxSegmentTarget,
+                             Integer idxGroupTarget,
+                             Integer idxExternalTarget,
                              Integer targetDisplacement)
 {
 }
