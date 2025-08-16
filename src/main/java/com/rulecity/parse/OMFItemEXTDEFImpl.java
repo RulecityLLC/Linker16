@@ -7,16 +7,18 @@ import java.util.List;
 public class OMFItemEXTDEFImpl implements OMFItem, OMFItemEXTDEF
 {
     private final List<ExternalNamesDefinition> lstDefs;
+    private final boolean isLEXTDEF;
 
-    public OMFItemEXTDEFImpl(List<ExternalNamesDefinition> lstDefs)
+    public OMFItemEXTDEFImpl(List<ExternalNamesDefinition> lstDefs, boolean isLEXTDEF)
     {
         this.lstDefs = lstDefs;
+        this.isLEXTDEF = isLEXTDEF;
     }
 
     @Override
     public String getTypeString()
     {
-        return "EXTDEF (8Ch)";
+        return isLEXTDEF ? "LEXTDEF (B4h)" : "EXTDEF (8Ch)";
     }
 
     @Override
@@ -29,5 +31,11 @@ public class OMFItemEXTDEFImpl implements OMFItem, OMFItemEXTDEF
     public List<ExternalNamesDefinition> getExternalNamesDefinitions()
     {
         return lstDefs;
+    }
+
+    @Override
+    public boolean isLEXTDEF()
+    {
+        return this.isLEXTDEF;
     }
 }

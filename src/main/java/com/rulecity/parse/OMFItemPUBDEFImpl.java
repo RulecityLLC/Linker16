@@ -12,19 +12,21 @@ public class OMFItemPUBDEFImpl implements OMFItem, OMFItemPUBDEF
     private final byte baseSegmentIdx;
     private final Integer baseFrame;
     private final List<PublicNamesDefinition> lstDefs;
+    private final boolean isLPUBDEF;
 
-    public OMFItemPUBDEFImpl(byte baseGroupIdx, byte baseSegmentIdx, Integer baseFrame, List<PublicNamesDefinition> lstDefs)
+    public OMFItemPUBDEFImpl(byte baseGroupIdx, byte baseSegmentIdx, Integer baseFrame, List<PublicNamesDefinition> lstDefs, boolean isLPUBDEF)
     {
         this.baseGroupIdx = baseGroupIdx;
         this.baseSegmentIdx = baseSegmentIdx;
         this.baseFrame = baseFrame;
         this.lstDefs = lstDefs;
+        this.isLPUBDEF = isLPUBDEF;
     }
 
     @Override
     public String getTypeString()
     {
-        return "PUBDEF (90h)";
+        return isLPUBDEF ? "LPUBDEF (B6h)" : "PUBDEF (90h)";
     }
 
     @Override
@@ -49,6 +51,7 @@ public class OMFItemPUBDEFImpl implements OMFItem, OMFItemPUBDEF
                 baseGroupIdx != 0 ? baseGroupIdx - 1 : null,
                 baseSegmentIdx != 0 ? baseSegmentIdx - 1 : null,
                 baseFrame,
-                lstNamesAndOffsets);
+                lstNamesAndOffsets,
+                isLPUBDEF);
     }
 }

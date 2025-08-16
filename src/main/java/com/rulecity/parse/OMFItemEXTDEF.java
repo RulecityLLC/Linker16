@@ -7,4 +7,6 @@ import java.util.List;
 public interface OMFItemEXTDEF
 {
     List<ExternalNamesDefinition> getExternalNamesDefinitions();
+
+    boolean isLEXTDEF();
 }

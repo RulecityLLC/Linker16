@@ -43,7 +43,14 @@ public class OMFFileImpl implements OMFFile
             }
             else if (item instanceof OMFItemEXTDEF itemEXTDEF)
             {
-                this.lstExternal.addAll(itemEXTDEF.getExternalNamesDefinitions().stream().map(x -> new ExternalOrRelated(null, x, null)).toList());
+                if (itemEXTDEF.isLEXTDEF())
+                {
+                    this.lstExternal.addAll(itemEXTDEF.getExternalNamesDefinitions().stream().map(x -> new ExternalOrRelated(null, null, x)).toList());
+                }
+                else
+                {
+                    this.lstExternal.addAll(itemEXTDEF.getExternalNamesDefinitions().stream().map(x -> new ExternalOrRelated(null, x, null)).toList());
+                }
             }
             else if (item instanceof OMFItemGRPDEF itemGRPDEF)
             {
@@ -92,10 +99,6 @@ public class OMFFileImpl implements OMFFile
             {
                 // TODO : process on pass 2
             }
-            else if (item instanceof OMFItemLEXTDEF itemLEXTDEF)
-            {
-                this.lstExternal.addAll(itemLEXTDEF.getLocalExternalNamesDefinitions().stream().map(x -> new ExternalOrRelated(null, null, x)).toList());
-            }
             else if (item instanceof OMFItemLNAMES itemLNAMES)
             {
                 // there should only be one of these entries
@@ -111,7 +114,7 @@ public class OMFFileImpl implements OMFFile
             }
             else if (item instanceof OMFItemPUBDEF itemPUBDEF)
             {
-                // not sure if these comes up multiple times; we'll add to a list just to be safe
+                // not sure if these come up multiple times; we'll add to a list just to be safe
                 PublicNamesDefinitionProcessed def = itemPUBDEF.getDef();
                 lstPubNames.add(def);
             }

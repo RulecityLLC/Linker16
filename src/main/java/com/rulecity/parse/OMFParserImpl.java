@@ -3,6 +3,10 @@ package com.rulecity.parse;
 import com.rulecity.parse.data.*;
 import com.rulecity.parse.data.Thread;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +33,32 @@ public class OMFParserImpl implements OMFParser
             byte recordType = getSignedByte();
             recordLength = getWord();
             recordCount = 0;
+
+            /*
+            BEGIN DEBUG
+             */
+
+            byte[] arrBuf = new byte[recordLength + 3];
+            arrBuf[0] = recordType;
+            arrBuf[1] = (byte) (recordLength & 0xFF);
+            arrBuf[2] = (byte) (recordLength >> 8);
+
+            if (recordLength >= 0) System.arraycopy(src, idxSrc, arrBuf, 3, recordLength);
+
+            File file = new File("currec.bin");
+            try (FileOutputStream fos = new FileOutputStream(file))
+            {
+                fos.write(arrBuf);
+            }
+            catch (IOException e)
+            {
+                throw new RuntimeException(e);
+            }
+
+            /*
+            END DEBUG
+             */
+
             item = switch (recordType)
             {
                 case (byte) 0x80 ->  // THEADR
@@ -40,7 +70,7 @@ public class OMFParserImpl implements OMFParser
                 case (byte) 0x8C ->   // EXTDEF
                         handleEXTDEF(false);
                 case (byte) 0x90 ->   // PUBDEF
-                        handlePUBDEF();
+                        handlePUBDEF(false);
                 case (byte) 0x96 ->   // LNAMES
                         handleLNAMES();
                 case (byte) 0x98 ->   // SEGDEF
@@ -55,12 +85,17 @@ public class OMFParserImpl implements OMFParser
                         handleCOMDEF();
                 case (byte) 0xB4 -> // LEXTDEF
                         handleEXTDEF(true);
+                case (byte) 0xB6 ->   // PUBDEF
+                        handlePUBDEF(true);
                 default -> throw new RuntimeException(String.format("Unknown record type %02x", recordType));
             };
 
             // sanity check
 
-            if (recordCount != (this.recordLength-1)) throw new RuntimeException("Unexpected bytes");
+            if (recordCount != (this.recordLength-1))
+            {
+                throw new RuntimeException("Unexpected bytes");
+            }
 
             byte checkSumExpected = src[idxSrc++];
             if (checkSum != checkSumExpected)
@@ -146,7 +181,7 @@ public class OMFParserImpl implements OMFParser
             bldr.setLength(0);
         }
 
-        return isLEXTDEF ? new OMFItemLEXTDEFImpl(lstDefs) : new OMFItemEXTDEFImpl(lstDefs);
+        return new OMFItemEXTDEFImpl(lstDefs, isLEXTDEF);
     }
 
     private OMFItem handleFIXUPP()
@@ -191,12 +226,27 @@ public class OMFParserImpl implements OMFParser
         int targt = fixDat & 7;
         boolean P = (targt & 4) != 0;
 
+        if ((targt & 3) == 3)
+        {
+            // we don't know how to handle this properly.  warning!
+            throw new RuntimeException("I don't know how to handle this type of targt!");
+        }
+
         Byte frameDatum = null;
-        if ((!frameSpecifiedByPreviousThreadFieldRef) && (frame <= 2)) frameDatum = getSignedByte();
+        if (!frameSpecifiedByPreviousThreadFieldRef)
+        {
+            if (frame <= 2)
+            {
+                frameDatum = getSignedByte();
+            }
+        }
 
         Byte targetDatum = null;
 
-        if (!targetSpecifiedByPreviousThreadFieldRef) targetDatum = getSignedByte();
+        if (!targetSpecifiedByPreviousThreadFieldRef)
+        {
+            targetDatum = getSignedByte();
+        }
 
         Integer targetDisplacement = null;
         if (!P)
@@ -286,7 +336,7 @@ public class OMFParserImpl implements OMFParser
         return new OMFItemMODENDImpl(isAMainProgramModule, moduleContainsAStartAddress, endData, frameDatum, targetDatum, targetDisplacement);
     }
 
-    private OMFItem handlePUBDEF()
+    private OMFItem handlePUBDEF(boolean isLPUBDEF)
     {
         List<PublicNamesDefinition> lstDefs = new ArrayList<>();
         StringBuilder bldr = new StringBuilder();
@@ -316,7 +366,7 @@ public class OMFParserImpl implements OMFParser
             bldr.setLength(0);
         }
 
-        return new OMFItemPUBDEFImpl(baseGroupIdx, baseSegmentIdx, baseFrame, lstDefs);
+        return new OMFItemPUBDEFImpl(baseGroupIdx, baseSegmentIdx, baseFrame, lstDefs, isLPUBDEF);
     }
 
     private OMFItem handleSEGDEF()
