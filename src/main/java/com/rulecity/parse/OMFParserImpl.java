@@ -2,6 +2,8 @@ package com.rulecity.parse;
 
 import com.rulecity.parse.data.*;
 import com.rulecity.parse.data.Thread;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -12,6 +14,8 @@ import java.util.List;
 
 public class OMFParserImpl implements OMFParser
 {
+    private static final Logger logger = LoggerFactory.getLogger(OMFParserImpl.class);
+
     int idxSrc; // the position within the raw binary data
     byte[] src; // the raw binary data of the .OBJ file
     byte checkSum;  // so we can verify that we are parsing correctly
@@ -228,7 +232,7 @@ public class OMFParserImpl implements OMFParser
 
         if ((targt & 3) == 3)
         {
-            // we don't know how to handle this properly.  warning!
+            // we don't know how to handle this properly.
             throw new RuntimeException("I don't know how to handle this type of targt!");
         }
 
@@ -250,6 +254,7 @@ public class OMFParserImpl implements OMFParser
             // I don't know how to interpret this, but it seems when the target datum is 0x80, that another byte follows.
             if (targetDatum == (byte) 0x80)
             {
+                logger.warn("Received target datum of 0x80.  I don't know how to parse so just ignoring.  This will likely produce errors later.");
                 // for now we just throw away
                 getSignedByte();
             }
