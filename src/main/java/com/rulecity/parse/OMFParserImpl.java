@@ -246,6 +246,13 @@ public class OMFParserImpl implements OMFParser
         if (!targetSpecifiedByPreviousThreadFieldRef)
         {
             targetDatum = getSignedByte();
+
+            // I don't know how to interpret this, but it seems when the target datum is 0x80, that another byte follows.
+            if (targetDatum == (byte) 0x80)
+            {
+                // for now we just throw away
+                getSignedByte();
+            }
         }
 
         Integer targetDisplacement = null;

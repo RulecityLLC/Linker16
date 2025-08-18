@@ -580,13 +580,12 @@ public class OMFParserImplTest
                 (byte)0x85, (byte)0x56, (byte)0x56, (byte)0x02,
                 (byte)0xC5, (byte)0x50, (byte)0x9D,
                 (byte)0xC5, (byte)0x4D, (byte)0x9D,
-                (byte)0xC5, (byte)0x45, (byte)0x56,
-                (byte)0x80, (byte)0x9C,
 
                 // We do not currently parse the following bytes properly.
                 // I can't find anything in the official spec that explains the trailing 0x9C.
                 //  From what I can tell, it should not be there.
                 //  So for now, I am blocked until I know how to handle it.
+                (byte)0xC5, (byte)0x45, (byte)0x56, (byte)0x80, (byte)0x9C,
                 (byte)0xC5, (byte)0x31, (byte)0x56, (byte)0x80, (byte)0x9C,
                 (byte)0xC5, (byte)0x26, (byte)0x56, (byte)0x80, (byte)0x9C,
                 (byte)0xC5, (byte)0x0B, (byte)0x56, (byte)0x80, (byte)0x9C,
@@ -616,9 +615,34 @@ public class OMFParserImplTest
         List<Fixup> fixups = itemFIXUPP.getFixups();
         List<Thread> threads = itemFIXUPP.getThreads();
         assertEquals(0, threads.size());
+        assertEquals(62, fixups.size());
+    }
+
+    @Test
+    public void FIXUPPTest8()
+    {
+        // This is another fixup record where the target datum is 0x80 and another byte trails it.
+        // I haven't found any docs that explain what to do in this case.
+
+        // ARRANGE
+        byte[] arrRecord = {
+                b(0x9C), b(6), 0, b(0x85), b(0x77), b(0x56), b(0x80),b(0x8E),b(0xFE)
+        };
+
+        // ACT
+        var instance = new OMFParserImpl();
+        List<OMFItem> objItems = instance.parseBinary(arrRecord);
+
+        // ASSERT
+        assertEquals(1, objItems.size());
+        OMFItem item = objItems.getFirst();
+        OMFItemFIXUPP itemFIXUPP = (OMFItemFIXUPP) item;
+        List<Fixup> fixups = itemFIXUPP.getFixups();
+        List<Thread> threads = itemFIXUPP.getThreads();
+        assertEquals(0, threads.size());
         assertEquals(1, fixups.size());
 
-
+        // we can add more
     }
 
     @Test
