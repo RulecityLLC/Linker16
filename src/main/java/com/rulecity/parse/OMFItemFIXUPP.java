@@ -7,7 +7,7 @@ import com.rulecity.parse.data.Thread;
 
 import java.util.List;
 
-public interface OMFItemFIXUPP
+public interface OMFItemFIXUPP extends OMFItem
 {
     enum FixupMethodTarget
     {

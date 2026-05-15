@@ -4,7 +4,7 @@ import com.rulecity.parse.data.Communal;
 
 import java.util.List;
 
-public interface OMFItemCOMDEF
+public interface OMFItemCOMDEF extends OMFItem
 {
     List<Communal> getCommualList();
 }

@@ -1,23 +1,72 @@
 plugins {
     id 'java'
+    id 'application'
 }
 
 group = 'com.rulecity'
 version = '1.0-SNAPSHOT'
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+application {
+    mainClass = 'com.rulecity.Main'
+}
+
 repositories {
     mavenCentral()
 }
 
+sourceSets {
+    integrationTest {
+        java {
+            srcDir 'src/test-integration/java'
+        }
+        resources {
+            srcDir 'src/test-integration/resources'
+        }
+        compileClasspath += sourceSets.main.output + sourceSets.test.output
+        runtimeClasspath += sourceSets.main.output + sourceSets.test.output
+    }
+}
+
+configurations {
+    integrationTestImplementation.extendsFrom testImplementation
+    integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
+}
+
 dependencies {
 
-    implementation 'org.slf4j:slf4j-api:2.0.17' // Check for latest version
-    implementation 'ch.qos.logback:logback-classic:1.5.6' // Check for latest version
+    implementation 'org.slf4j:slf4j-api:2.0.17'
+    implementation 'ch.qos.logback:logback-classic:1.5.6'
 
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.mockito:mockito-core:5.23.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.23.0'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testRuntimeOnly 'net.bytebuddy:byte-buddy:1.18.8'
+    testRuntimeOnly 'net.bytebuddy:byte-buddy-agent:1.18.8'
 }
 
 test {
     useJUnitPlatform()
+    // Unit tests must not touch the filesystem. Integration tests live in :integrationTest.
+    include '**/*Test.class'
+    exclude '**/*IT.class'
 }
+
+tasks.register('integrationTest', Test) {
+    description = 'Runs integration tests (filesystem-touching tests suffixed with IT).'
+    group = 'verification'
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    useJUnitPlatform()
+    shouldRunAfter test
+    include '**/*IT.class'
+}
+
+check.dependsOn integrationTest

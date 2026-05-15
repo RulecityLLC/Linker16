@@ -4,7 +4,7 @@ import com.rulecity.parse.data.SegmentDefProcessed;
 
 import java.util.List;
 
-public interface OMFItemSEGDEF
+public interface OMFItemSEGDEF extends OMFItem
 {
     enum Alignment
     {

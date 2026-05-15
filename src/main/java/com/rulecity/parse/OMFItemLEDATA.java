@@ -1,8 +1,9 @@
 package com.rulecity.parse;
 
-public interface OMFItemLEDATA
+public interface OMFItemLEDATA extends OMFItem
 {
-    byte getSegmentIdx();
+    // 1-based OMF segment index per TIS 1.1 (variable-width: 1..32767, wider than a byte).
+    int getSegmentIdx();
 
     int getEnumeratedDataOffset();
 

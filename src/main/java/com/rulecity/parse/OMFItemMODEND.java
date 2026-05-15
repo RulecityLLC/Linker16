@@ -1,6 +1,6 @@
 package com.rulecity.parse;
 
-public interface OMFItemMODEND
+public interface OMFItemMODEND extends OMFItem
 {
     boolean isAMainProgramModule();
 

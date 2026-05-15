@@ -4,7 +4,7 @@ import com.rulecity.parse.data.ExternalNamesDefinition;
 
 import java.util.List;
 
-public interface OMFItemEXTDEF
+public interface OMFItemEXTDEF extends OMFItem
 {
     List<ExternalNamesDefinition> getExternalNamesDefinitions();
 

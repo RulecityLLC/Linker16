@@ -8,13 +8,13 @@ import java.util.List;
 
 public class OMFItemPUBDEFImpl implements OMFItem, OMFItemPUBDEF
 {
-    private final byte baseGroupIdx;
-    private final byte baseSegmentIdx;
+    private final int baseGroupIdx;
+    private final int baseSegmentIdx;
     private final Integer baseFrame;
     private final List<PublicNamesDefinition> lstDefs;
     private final boolean isLPUBDEF;
 
-    public OMFItemPUBDEFImpl(byte baseGroupIdx, byte baseSegmentIdx, Integer baseFrame, List<PublicNamesDefinition> lstDefs, boolean isLPUBDEF)
+    public OMFItemPUBDEFImpl(int baseGroupIdx, int baseSegmentIdx, Integer baseFrame, List<PublicNamesDefinition> lstDefs, boolean isLPUBDEF)
     {
         this.baseGroupIdx = baseGroupIdx;
         this.baseSegmentIdx = baseSegmentIdx;

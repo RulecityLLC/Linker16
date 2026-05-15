@@ -7,10 +7,10 @@ import java.util.stream.Collectors;
 
 public class OMFItemGRPDEFImpl implements OMFItem, OMFItemGRPDEF
 {
-    private final byte grpNameIdx;
-    private final List<Byte> lstSegDefs;
+    private final int grpNameIdx;
+    private final List<Integer> lstSegDefs;
 
-    public OMFItemGRPDEFImpl(byte grpNameIdx, List<Byte> lstSegDefs)
+    public OMFItemGRPDEFImpl(int grpNameIdx, List<Integer> lstSegDefs)
     {
         this.grpNameIdx = grpNameIdx;
         this.lstSegDefs = lstSegDefs;
