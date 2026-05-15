@@ -91,4 +91,19 @@ public class FixupReaderImplTest
         assertNull(fix.frameDatum());
         assertEquals(7, fix.targetDatum());
     }
+
+    @Test
+    public void frame_equalsBoundary2_readsFrameDatum()
+    {
+        // fixDat = 0x26 -> F=0, frame=2 (boundary of `frame <= 2`), T=0, targt=6 (P=1).
+        // Mutating `<=` to `<` would skip frameDatum on this exact case.
+        when(cursor.getSignedByte()).thenReturn((byte) 0x26);
+        when(cursor.getIndex()).thenReturn(3, 9); // frameDatum=3, targetDatum=9
+
+        Fixup fix = fixupReader.readFixup(cursor, false, (byte) 1, 0);
+
+        assertEquals(2, fix.frame());
+        assertEquals(3, fix.frameDatum(), "frame=2 is the inclusive boundary — frameDatum must be read");
+        assertEquals(9, fix.targetDatum());
+    }
 }

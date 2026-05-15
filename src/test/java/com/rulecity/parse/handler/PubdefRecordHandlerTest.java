@@ -72,6 +72,28 @@ public class PubdefRecordHandlerTest
     }
 
     @Test
+    public void multipleEntries_namesAreNotConcatenatedAcrossIterations()
+    {
+        // Two entries: "A" and "B". If the StringBuilder isn't reset (setLength(0))
+        // after each entry, the second entry's name becomes "AB".
+        // Payload: 1(grp) + 1(seg) + [1(len)+1(A)+2(off)+1(typ)] + [1(len)+1(B)+2(off)+1(typ)] = 12; recordLength=13
+        when(cursor.getRecordLength()).thenReturn(13);
+        when(cursor.getRecordCount()).thenReturn(2, 7, 12);
+        when(cursor.getIndex()).thenReturn(1, 2, 0, 0); // group, segment, type1, type2
+        when(cursor.getUnsignedByteAsInt()).thenReturn(1, 1);
+        when(cursor.getSignedByte()).thenReturn((byte) 'A', (byte) 'B');
+        when(cursor.getWord()).thenReturn(0x10, 0x20);
+
+        OMFItem item = new PubdefRecordHandler(false).handle(cursor);
+        PublicNamesDefinitionProcessed def = ((OMFItemPUBDEF) item).getDef();
+
+        assertEquals(2, def.lstNamesAndOffsets().size());
+        assertEquals("A", def.lstNamesAndOffsets().get(0).publicNameString());
+        assertEquals("B", def.lstNamesAndOffsets().get(1).publicNameString(),
+                "second name must be just 'B', not 'AB' — StringBuilder must be reset between entries");
+    }
+
+    @Test
     public void nonZeroBaseSegment_doesNotReadBaseFrame()
     {
         // recordLength=3 -> endCount=2, recordCount=2 after both indices, exits loop.

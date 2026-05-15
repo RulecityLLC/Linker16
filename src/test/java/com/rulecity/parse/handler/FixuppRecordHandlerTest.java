@@ -110,4 +110,47 @@ public class FixuppRecordHandlerTest
         assertNotNull(raw.thread());
         assertEquals(7, raw.thread().index());
     }
+
+    @Test
+    public void thread_decodesEachBitFieldOfFirstByteSeparately()
+    {
+        // firstByte 0x08 (0000_1000) — high bit clear → THREAD path.
+        // - threadFieldSpecifiesFrame = bit 6 = 0 (false)
+        // - method = bits 4..2 = 010 = 2  (decodes to FRAME_SPECIFIED_BY_EXTDEF if frame thread,
+        //                                  or TARGET_SPECIFIED_BY_EXTDEF_WITH_DISPLACEMENT if target)
+        // - threadNum = bits 1..0 = 00 = 0
+        when(cursor.getRecordLength()).thenReturn(3);
+        when(cursor.getRecordCount()).thenReturn(0, 3);
+        when(cursor.getUnsignedByteAsInt()).thenReturn(0x08);
+        when(cursor.getIndex()).thenReturn(3);
+        when(fixupOrThreadProcessor.process(any(FixupOrThread.class))).thenReturn(mockProcessed);
+
+        OMFItem result = handler.handle(cursor);
+
+        OMFItemFIXUPPImpl fixupp = (OMFItemFIXUPPImpl) result;
+        com.rulecity.parse.data.Thread t = fixupp.getThreads().get(0);
+        assertEquals(false, t.threadFieldSpecifiesFrame()); // kills AND→OR on bit 0x40
+        assertEquals(2, t.method());                        // kills shift-right→left and AND→OR on `>> 2 & 7`
+        assertEquals(0, t.threadNum());                     // kills AND→OR on `& 3`
+    }
+
+    @Test
+    public void fixup_dataRecordOffsetUsesShiftLeftOnFirstByte()
+    {
+        // firstByte 0x83 (1000_0011) — high bit set → FIXUP path.
+        // Original locat = (0x83 << 8) | secondByte.
+        // dataRecordOffset = locat & 1023.
+        //   With <<: ((0x8300) | 0x10) & 0x3FF = 0x310
+        //   With >>: ((0x83 >> 8) | 0x10) & 0x3FF = 0x010
+        // Asserting 0x310 kills the shift-left→right mutation on line 40.
+        when(cursor.getRecordLength()).thenReturn(5);
+        when(cursor.getRecordCount()).thenReturn(0, 5);
+        when(cursor.getUnsignedByteAsInt()).thenReturn(0x83, 0x10);
+        when(fixupReader.readFixup(eq(cursor), anyBoolean(), anyByte(), anyInt())).thenReturn(mockFixup);
+        when(fixupOrThreadProcessor.process(any(FixupOrThread.class))).thenReturn(mockProcessed);
+
+        handler.handle(cursor);
+
+        verify(fixupReader, times(1)).readFixup(eq(cursor), anyBoolean(), anyByte(), eq(0x310));
+    }
 }

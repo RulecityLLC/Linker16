@@ -65,6 +65,22 @@ public class SegdefRecordHandlerTest
     }
 
     @Test
+    public void bigAttributeClear_segmentLengthZero_processedSizeIsZero()
+    {
+        // attributes: A=1, C=0, Big=0 -> 001_000_00 = 0x20.
+        // The handler decodes Big from `(attributes & 2) != 0`. With AND→OR
+        // mutation, the bit would be forced true and length would jump to 64K.
+        when(cursor.getSignedByte()).thenReturn((byte) 0x20);
+        when(cursor.getWord()).thenReturn(0);
+        when(cursor.getIndex()).thenReturn(1, 2, 0);
+
+        OMFItem item = new SegdefRecordHandler().handle(cursor);
+        SegmentDefProcessed processed = ((OMFItemSEGDEF) item).getProcessed(List.of("seg", "cls"));
+
+        assertEquals(0, processed.length());
+    }
+
+    @Test
     public void aValues1To3MapToCorrectAlignment()
     {
         // The handler uses an arithmetic right shift so A>=4 sign-extends; only A=1..3

@@ -140,4 +140,25 @@ public class ByteCursorImplTest
         cursor.getSignedByte();
         assertFalse(cursor.hasMore());
     }
+
+    @Test
+    public void readRawByte_returnsExactByteValue()
+    {
+        // Pin both bytes so a "return 0" mutation is detectable.
+        ByteCursorImpl cursor = new ByteCursorImpl(new byte[]{0x42, (byte) 0xA7});
+        assertEquals((byte) 0x42, cursor.readRawByte());
+        assertEquals((byte) 0xA7, cursor.readRawByte());
+    }
+
+    @Test
+    public void getCommunalField_0x80_isUnknownLeadByte_returnsZero()
+    {
+        // The boundary in `if (val < 0x80) return val;` distinguishes 0x7F from 0x80.
+        // 0x80 isn't a recognised lead byte (0x81/0x84/0x88), so it falls through
+        // every branch and returns 0.
+        ByteCursorImpl cursor = new ByteCursorImpl(new byte[]{(byte) 0x80});
+        cursor.beginRecord();
+        cursor.markStartOfPayload(1);
+        assertEquals(0, cursor.getCommunalField());
+    }
 }

@@ -223,4 +223,13 @@ public class OMFItemImplsTest
         OMFItemSEGDEFImpl s = new OMFItemSEGDEFImpl((byte) 1, (byte) 0, false, false, 0x30, 1, 2, 0);
         assertEquals(0x30, s.getProcessed(List.of("a", "b")).length());
     }
+
+    @Test
+    public void fixupp_typeStringAndDataString()
+    {
+        com.rulecity.parse.OMFItemFIXUPPImpl f = new com.rulecity.parse.OMFItemFIXUPPImpl(
+                List.of(), List.of());
+        assertEquals("FIXUPP (9Ch)", f.getTypeString());
+        assertEquals("todo", f.getDataString());
+    }
 }

@@ -108,4 +108,22 @@ public class ComdefAllocatorImplTest
         assertEquals(0x100, r.get("_a"));
         assertEquals(0x102, r.get("_b"));
     }
+
+    @Test
+    public void laterModuleWithLargerSize_overridesEarlierAndShiftsSubsequentEntries()
+    {
+        // moduleA declares _A as 10 bytes; moduleB declares it as 100. The allocator
+        // must take the larger size — its choice shows up in _B's offset (which is
+        // word-aligned past _A). Negating the `length > existing` conditional would
+        // keep _A at size 10 and put _B at offset 12 instead of 102.
+        when(moduleA.getExternals()).thenReturn(List.of(
+                new ExternalOrRelated(new Communal("_A", 10), null, null),
+                new ExternalOrRelated(new Communal("_B", 2), null, null)));
+        when(moduleB.getExternals()).thenReturn(List.of(
+                new ExternalOrRelated(new Communal("_A", 100), null, null)));
+
+        Map<String, Integer> r = allocator.allocate(List.of(moduleA, moduleB), withBssAt(0));
+        assertEquals(0, r.get("_A"));
+        assertEquals(100, r.get("_B")); // (0 + 100 + 1) & ~1 = 100; mutated would put _B at 10
+    }
 }

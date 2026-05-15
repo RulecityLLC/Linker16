@@ -81,4 +81,54 @@ public class FixupValueWriterImplTest
         assertEquals((byte) 0x23, image[0]);
         assertEquals((byte) 0x00, image[1]);
     }
+
+    @Test
+    public void lowOrderByte_selfRelative_subtractsLocationPlusOne()
+    {
+        // self-rel low byte: value = target - (loc+1). Pick values so this differs
+        // from the seg-rel value to keep the conditional honest.
+        byte[] image = new byte[4];
+        writer.write(image, 0, Location.LOW_ORDER_BYTE, false, 0x0008, 0x80);
+        // target=0x80, loc=0 → 0x80 - 1 = 0x7F, low byte 0x7F
+        assertEquals((byte) 0x7F, image[0]);
+    }
+
+    @Test
+    public void highOrderByte_selfRelative_subtractsLocationPlusOne()
+    {
+        // self-rel high byte: value = (target - (loc+1)) >> 8.
+        // frame=0x10 → frameStart=0x80; target=0x300, loc=0x100.
+        // seg-rel = 0x300 - 0x80 = 0x280, hi byte 0x02.
+        // self-rel = 0x300 - 0x101 = 0x1FF, hi byte 0x01.
+        byte[] image = new byte[0x200];
+        writer.write(image, 0x100, Location.HIGH_ORDER_BYTE, false, 0x0010, 0x300);
+        assertEquals((byte) 0x01, image[0x100]);
+    }
+
+    @Test
+    public void offset16Bit_addWord_combinesExistingHighByte_proves_shiftLeftIsCorrect()
+    {
+        // addWord reads existing as low | (high << 8). If the shift is mutated
+        // to >> 8, the high byte is lost. Set both bytes non-zero.
+        byte[] image = new byte[4];
+        image[0] = 0x10;
+        image[1] = 0x20; // existing word 0x2010
+        writer.write(image, 0, Location.OFFSET_16BIT, true, 0x0008, 0x100);
+        // 0x2010 + 0x100 = 0x2110
+        assertEquals((byte) 0x10, image[0]);
+        assertEquals((byte) 0x21, image[1]);
+    }
+
+    @Test
+    public void highOrderByte_segmentRelativeVsSelfRelative_distinguishable()
+    {
+        // Pin a setup where the "negated conditional" mutation in HIGH_ORDER_BYTE
+        // produces a different high byte than the original segmentRelative=true call.
+        // frame=0x10 → frameStart=0x80; target=0x300; loc=0x100.
+        // Original (seg-rel): segRelDelta=0x280, hi=0x02.
+        // Mutated (negated → falls through self-rel): 0x300-(0x100+1)=0x1FF, hi=0x01.
+        byte[] image = new byte[0x200];
+        writer.write(image, 0x100, Location.HIGH_ORDER_BYTE, true, 0x0010, 0x300);
+        assertEquals((byte) 0x02, image[0x100]);
+    }
 }

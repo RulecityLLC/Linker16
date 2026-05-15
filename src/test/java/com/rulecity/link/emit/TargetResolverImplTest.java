@@ -142,4 +142,53 @@ public class TargetResolverImplTest
         assertThrows(RuntimeException.class,
                 () -> resolver.imageOffset(segdefTarget(7, 0, true), 0, module, lookup, symbols));
     }
+
+    @Test
+    public void extdefTargetUsesLocalExternalNameWhenEntryIsLEXTDEF()
+    {
+        when(module.getExternals()).thenReturn(List.of(
+                new ExternalOrRelated(null, null, new ExternalNamesDefinition("priv", 0))));
+        when(symbols.lookup("priv")).thenReturn(0x3000);
+
+        Integer r = resolver.imageOffset(extdefTarget(0, 0x4, true), 0, module, lookup, symbols);
+        assertEquals(0x3004, r);
+    }
+
+    @Test
+    public void extdefTargetWithUnpopulatedExternalOrRelated_throws()
+    {
+        when(module.getExternals()).thenReturn(List.of(
+                new ExternalOrRelated(null, null, null)));
+
+        assertThrows(RuntimeException.class,
+                () -> resolver.imageOffset(extdefTarget(0, 0, false), 0, module, lookup, symbols));
+    }
+
+    @Test
+    public void extdefTargetWithNullIndex_throws()
+    {
+        when(module.getModuleName()).thenReturn("M");
+        FixupProcessed fp = new FixupProcessed(true, Location.OFFSET_16BIT, 0,
+                null, null, null,
+                FixupMethodTarget.TARGET_SPECIFIED_BY_EXTDEF,
+                null, null, null,
+                null, null, null, 0);
+
+        assertThrows(RuntimeException.class,
+                () -> resolver.imageOffset(fp, 0, module, lookup, symbols));
+    }
+
+    @Test
+    public void segdefTargetWithNullIndex_throws()
+    {
+        when(module.getModuleName()).thenReturn("M");
+        FixupProcessed fp = new FixupProcessed(true, Location.OFFSET_16BIT, 0,
+                null, null, null,
+                FixupMethodTarget.TARGET_SPECIFIED_BY_SEGDEF,
+                null, null, null,
+                null, null, null, 0);
+
+        assertThrows(RuntimeException.class,
+                () -> resolver.imageOffset(fp, 0, module, lookup, symbols));
+    }
 }

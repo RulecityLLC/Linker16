@@ -56,6 +56,10 @@ public class OMFParserImplTest
         assertSame(comentItem, items.get(1));
         verify(theadrHandler, times(1)).handle(cursor);
         verify(comentHandler, times(1)).handle(cursor);
+        // Per-record bookkeeping must be invoked; otherwise the running checksum
+        // and recordCount drift across records.
+        verify(cursor, times(2)).beginRecord();
+        verify(cursor, times(2)).markStartOfPayload(1); // each record's reported length
     }
 
     @Test

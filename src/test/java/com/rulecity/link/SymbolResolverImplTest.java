@@ -133,4 +133,46 @@ public class SymbolResolverImplTest
         assertThrows(RuntimeException.class,
                 () -> resolver.resolve(List.of(moduleA), List.of()));
     }
+
+    @Test
+    public void pieceKey_distinguishesByModuleAndBySegment()
+    {
+        // Two modules, each contributing two SEGDEFs. The (moduleIdx, segmentIdx)
+        // key must keep all four pieces distinct — if any pair collides, two of
+        // these PUBDEFs resolve to the wrong piece's offset.
+        when(moduleA.getModuleName()).thenReturn("A");
+        when(moduleA.getPublicSymbols()).thenReturn(List.of(
+                new PublicNamesDefinitionProcessed(0, 0, null,
+                        List.of(new PublicNameAndOffset("a_text", 0)), false),
+                new PublicNamesDefinitionProcessed(0, 1, null,
+                        List.of(new PublicNameAndOffset("a_data", 0)), false)));
+        when(moduleB.getModuleName()).thenReturn("B");
+        when(moduleB.getPublicSymbols()).thenReturn(List.of(
+                new PublicNamesDefinitionProcessed(0, 0, null,
+                        List.of(new PublicNameAndOffset("b_text", 0)), false),
+                new PublicNamesDefinitionProcessed(0, 1, null,
+                        List.of(new PublicNameAndOffset("b_data", 0)), false)));
+
+        // _text combined: module 0 piece at offset 0, module 1 piece at offset 0x100.
+        CombinedSegment text = placed("_text", 0x1000, List.of(
+                new SegmentPiece(0, "A", 0, 0,      0x100),
+                new SegmentPiece(1, "B", 0, 0x100,  0x80)),
+                0x180);
+        // _data combined: module 0 piece at offset 0, module 1 piece at offset 0x40.
+        CombinedSegment data = placed("_data", 0x2000, List.of(
+                new SegmentPiece(0, "A", 1, 0,      0x40),
+                new SegmentPiece(1, "B", 1, 0x40,   0x20)),
+                0x60);
+
+        List<ResolvedSymbol> r = resolver.resolve(List.of(moduleA, moduleB), List.of(text, data));
+        java.util.Map<String, Integer> byName = new java.util.HashMap<>();
+        for (ResolvedSymbol rs : r) byName.put(rs.name(), rs.imageOffset());
+
+        // Each PUBDEF must end up at its OWN piece's slot — collision in the key
+        // function would point to whichever piece was inserted last into the lookup.
+        assertEquals(0x1000,         byName.get("a_text")); // mod 0, seg 0
+        assertEquals(0x2000,         byName.get("a_data")); // mod 0, seg 1
+        assertEquals(0x1000 + 0x100, byName.get("b_text")); // mod 1, seg 0
+        assertEquals(0x2000 + 0x40,  byName.get("b_data")); // mod 1, seg 1
+    }
 }
