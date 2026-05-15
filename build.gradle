@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'application'
+    id 'info.solidsoft.pitest' version '1.19.0'
 }
 
 group = 'com.rulecity'
@@ -70,3 +71,25 @@ tasks.register('integrationTest', Test) {
 }
 
 check.dependsOn integrationTest
+
+pitest {
+    // Pin PIT itself to a version that supports Java 25 bytecode.
+    pitestVersion = '1.20.4'
+    junit5PluginVersion = '1.2.3'
+
+    targetClasses = ['com.rulecity.*']
+    // Main is the wiring entry point — its branches are exercised by integration tests,
+    // not unit tests, so excluding it keeps mutation analysis honest for the unit suite.
+    excludedClasses = ['com.rulecity.Main']
+    // Only the unit tests drive mutation analysis; integrationTest is excluded.
+    testSourceSets = [sourceSets.test]
+    mainSourceSets = [sourceSets.main]
+
+    threads = 4
+    timestampedReports = false
+    outputFormats = ['HTML', 'XML']
+    timeoutFactor = 2.0
+    timeoutConstInMillis = 10000
+
+    mutationThreshold = 80
+}
