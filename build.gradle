@@ -58,6 +58,10 @@ test {
     // Unit tests must not touch the filesystem. Integration tests live in :integrationTest.
     include '**/*Test.class'
     exclude '**/*IT.class'
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+        exceptionFormat = 'full'
+    }
 }
 
 tasks.register('integrationTest', Test) {
@@ -68,6 +72,10 @@ tasks.register('integrationTest', Test) {
     useJUnitPlatform()
     shouldRunAfter test
     include '**/*IT.class'
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+        exceptionFormat = 'full'
+    }
 }
 
 check.dependsOn integrationTest
@@ -91,5 +99,5 @@ pitest {
     timeoutFactor = 2.0
     timeoutConstInMillis = 10000
 
-    mutationThreshold = 80
+    mutationThreshold = 100
 }

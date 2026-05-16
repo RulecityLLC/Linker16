@@ -52,7 +52,7 @@ public class SegmentCombinerImpl implements SegmentCombiner
                 acc.pieces.add(new SegmentPiece(moduleIdx, module.getModuleName(),
                         segIdx, pieceOffset, seg.length()));
                 acc.totalLength = pieceOffset + seg.length();
-                if (pieceAlign > acc.alignmentBytes) acc.alignmentBytes = pieceAlign;
+                acc.alignmentBytes = Math.max(acc.alignmentBytes, pieceAlign);
             }
         }
 

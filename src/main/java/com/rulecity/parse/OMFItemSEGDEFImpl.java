@@ -9,18 +9,16 @@ public class OMFItemSEGDEFImpl implements OMFItem, OMFItemSEGDEF
     private final byte A;
     private final byte C;
     private final boolean big;
-    private final boolean P;
     private final int segmentLength;
     private final int segmentNameIdx;
     private final int classNameIdx;
     private final int overlayNameIdx;
 
-    public OMFItemSEGDEFImpl(byte a, byte c, boolean big, boolean p, int segmentLength, int segmentNameIdx, int classNameIdx, int overlayNameIdx)
+    public OMFItemSEGDEFImpl(byte a, byte c, boolean big, int segmentLength, int segmentNameIdx, int classNameIdx, int overlayNameIdx)
     {
         this.A = a;
         this.C = c;
         this.big = big;
-        this.P = p;
         this.segmentLength = segmentLength;
         this.segmentNameIdx = segmentNameIdx;
         this.classNameIdx = classNameIdx;

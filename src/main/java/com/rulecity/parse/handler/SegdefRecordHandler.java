@@ -13,7 +13,8 @@ public class SegdefRecordHandler implements RecordHandler
         byte A = (byte) (attributes >> 5);
         byte C = (byte) ((attributes >> 2) & 7);
         boolean Big = (attributes & 2) != 0;
-        boolean P = (attributes & 1) != 0;
+        // attributes bit 0 (P) is consumed by the wire format but ignored — the
+        // current downstream pipeline doesn't model the segment's privilege flag.
 
         if (A == 0)
         {
@@ -25,6 +26,6 @@ public class SegdefRecordHandler implements RecordHandler
         int classNameIdx = cursor.getIndex();
         int overlayNameIdx = cursor.getIndex();
 
-        return new OMFItemSEGDEFImpl(A, C, Big, P, segmentLength, segmentNameIdx, classNameIdx, overlayNameIdx);
+        return new OMFItemSEGDEFImpl(A, C, Big, segmentLength, segmentNameIdx, classNameIdx, overlayNameIdx);
     }
 }

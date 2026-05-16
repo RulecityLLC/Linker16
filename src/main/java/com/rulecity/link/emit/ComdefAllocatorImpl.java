@@ -27,11 +27,7 @@ public class ComdefAllocatorImpl implements ComdefAllocator
             {
                 Communal c = e.communal();
                 if (c == null) continue;
-                Integer existing = maxSize.get(c.name());
-                if (existing == null || c.length() > existing)
-                {
-                    maxSize.put(c.name(), c.length());
-                }
+                maxSize.merge(c.name(), c.length(), Math::max);
             }
         }
 

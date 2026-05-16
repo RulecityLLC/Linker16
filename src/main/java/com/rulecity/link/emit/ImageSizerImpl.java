@@ -25,8 +25,7 @@ public class ImageSizerImpl implements ImageSizer
             {
                 return cs.imageOffset();
             }
-            int segEnd = cs.imageOffset() + cs.totalLength();
-            if (segEnd > end) end = segEnd;
+            end = Math.max(end, cs.imageOffset() + cs.totalLength());
         }
         return end;
     }
