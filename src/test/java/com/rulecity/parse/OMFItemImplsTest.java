@@ -160,7 +160,7 @@ public class OMFItemImplsTest
                 OMFItemSEGDEF.Alignment.UNKNOWN};
         for (int a = 0; a <= 6; a++)
         {
-            OMFItemSEGDEFImpl s = new OMFItemSEGDEFImpl((byte) a, (byte) 2, false, 100, 1, 2, 0);
+            OMFItemSEGDEFImpl s = new OMFItemSEGDEFImpl((byte) a, (byte) 2, false, false, 100, 1, 2, 0);
             SegmentDefProcessed proc = s.getProcessed(lnames);
             assertEquals(expectedAlign[a], proc.alignment());
             assertEquals(OMFItemSEGDEF.Combination.PUBLIC, proc.combination());
@@ -172,21 +172,21 @@ public class OMFItemImplsTest
     {
         var lnames = List.of("a", "b");
         assertEquals(OMFItemSEGDEF.Combination.PRIVATE,
-                new OMFItemSEGDEFImpl((byte) 1, (byte) 0, false, 1, 1, 2, 0).getProcessed(lnames).combination());
+                new OMFItemSEGDEFImpl((byte) 1, (byte) 0, false, false, 1, 1, 2, 0).getProcessed(lnames).combination());
         assertEquals(OMFItemSEGDEF.Combination.PUBLIC,
-                new OMFItemSEGDEFImpl((byte) 1, (byte) 4, false, 1, 1, 2, 0).getProcessed(lnames).combination());
+                new OMFItemSEGDEFImpl((byte) 1, (byte) 4, false, false, 1, 1, 2, 0).getProcessed(lnames).combination());
         assertEquals(OMFItemSEGDEF.Combination.STACK,
-                new OMFItemSEGDEFImpl((byte) 1, (byte) 5, false, 1, 1, 2, 0).getProcessed(lnames).combination());
+                new OMFItemSEGDEFImpl((byte) 1, (byte) 5, false, false, 1, 1, 2, 0).getProcessed(lnames).combination());
         assertEquals(OMFItemSEGDEF.Combination.COMMON,
-                new OMFItemSEGDEFImpl((byte) 1, (byte) 6, false, 1, 1, 2, 0).getProcessed(lnames).combination());
+                new OMFItemSEGDEFImpl((byte) 1, (byte) 6, false, false, 1, 1, 2, 0).getProcessed(lnames).combination());
         assertEquals(OMFItemSEGDEF.Combination.UNKNOWN,
-                new OMFItemSEGDEFImpl((byte) 1, (byte) 1, false, 1, 1, 2, 0).getProcessed(lnames).combination());
+                new OMFItemSEGDEFImpl((byte) 1, (byte) 1, false, false, 1, 1, 2, 0).getProcessed(lnames).combination());
     }
 
     @Test
     public void segdef_typeStringAndDataString()
     {
-        OMFItemSEGDEFImpl s = new OMFItemSEGDEFImpl((byte) 1, (byte) 2, false, 0x10, 1, 2, 0);
+        OMFItemSEGDEFImpl s = new OMFItemSEGDEFImpl((byte) 1, (byte) 2, false, false, 0x10, 1, 2, 0);
         assertEquals("SEGDEF (98h)", s.getTypeString());
         // Smoke-test the formatted string contains the known A/C labels and the segment length.
         String ds = s.getDataString();
@@ -203,7 +203,7 @@ public class OMFItemImplsTest
         {
             for (byte c = 0; c <= 7; c++)
             {
-                String ds = new OMFItemSEGDEFImpl(a, c, false, 1, 1, 2, 0).getDataString();
+                String ds = new OMFItemSEGDEFImpl(a, c, false, false, 1, 1, 2, 0).getDataString();
                 assertTrue(ds.length() > 0);
             }
         }
@@ -212,7 +212,7 @@ public class OMFItemImplsTest
     @Test
     public void segdef_bigFlagWithNonZeroLength_keepsExplicitLength()
     {
-        OMFItemSEGDEFImpl s = new OMFItemSEGDEFImpl((byte) 1, (byte) 0, true, 0x20, 1, 2, 0);
+        OMFItemSEGDEFImpl s = new OMFItemSEGDEFImpl((byte) 1, (byte) 0, true, false, 0x20, 1, 2, 0);
         SegmentDefProcessed proc = s.getProcessed(List.of("a", "b"));
         assertEquals(0x20, proc.length());
     }
@@ -220,7 +220,7 @@ public class OMFItemImplsTest
     @Test
     public void segdef_notBig_lengthIsAsGiven()
     {
-        OMFItemSEGDEFImpl s = new OMFItemSEGDEFImpl((byte) 1, (byte) 0, false, 0x30, 1, 2, 0);
+        OMFItemSEGDEFImpl s = new OMFItemSEGDEFImpl((byte) 1, (byte) 0, false, false, 0x30, 1, 2, 0);
         assertEquals(0x30, s.getProcessed(List.of("a", "b")).length());
     }
 

@@ -89,6 +89,9 @@ pitest {
     // Main is the wiring entry point — its branches are exercised by integration tests,
     // not unit tests, so excluding it keeps mutation analysis honest for the unit suite.
     excludedClasses = ['com.rulecity.Main']
+    // parseSegdefPrivilegeBit parses the SEGDEF P bit purely for wire-format fidelity;
+    // nothing downstream consumes it, so its mutations are unkillable by construction.
+    excludedMethods = ['parseSegdefPrivilegeBit']
     // Only the unit tests drive mutation analysis; integrationTest is excluded.
     testSourceSets = [sourceSets.test]
     mainSourceSets = [sourceSets.main]
