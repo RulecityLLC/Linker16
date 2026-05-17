@@ -4,6 +4,13 @@ This is the practical "how do I actually run it" guide.  The goal here is to tak
 
 ## Making sure you have the right `.OBJ` files
 
+The `.OBJ` files were originally built with two MS-DOS era Microsoft tools, so you'll need to run them under [DOSBox](https://www.dosbox.com/) (or equivalent) on a modern machine:
+
+- [Microsoft C Professional Development System 6.0a](https://archive.org/details/microsoft-c-professional-development-system-6.0a-5.25.-7z) — for the C sources
+- [Microsoft Macro Assembler 6.0](https://archive.org/details/disk-5_202306) — for the assembly sources
+
+Other versions will probably produce `.OBJ` files that link but don't byte-match the original ROM, so stick to these if you want a bit-perfect result.
+
 To check that your DL2 .OBJ files match the ones this guide was written against, here are the MD5 hashes:
 
 | File | MD5 |
