@@ -2,6 +2,23 @@
 
 This is the practical "how do I actually run it" guide.  The goal here is to take the eight Dragon's Lair 2 `.OBJ` files and end up with a working 64 KB ROM image that matches the original `dl2_319.bin` byte-for-byte.
 
+## Making sure you have the right `.OBJ` files
+
+To check that your DL2 .OBJ files match the ones this guide was written against, here are the MD5 hashes:
+
+| File | MD5 |
+| --- | --- |
+| ASMLIB.OBJ | `33cebed2eec1d26256cc0aa20c046fdc` |
+| CLIB.OBJ | `3cb4593c15dd2312196e86362572cb86` |
+| DL2PROD2.OBJ | `c8d1baf54aa06c45fd817c06095ddabf` |
+| SERIAL.OBJ | `9cdfdaa95a2747555bb864766a228206` |
+| ENTERI.OBJ | `d5417dea555e453ce0f2596356267ee5` |
+| EEPROTS2.OBJ | `3b5628389d6989149c2938833c5f5e93` |
+| DL2DATA.OBJ | `ccb2f3a81f1f06a0703a6e3d0c544f4f` |
+| STATS2.OBJ | `ce87cbac76c632c3bdd83560cd4ecb2d` |
+
+If your hashes don't match, you probably built the `.OBJ` files with a different compiler version or different switches — the linker will still try its best, but you shouldn't expect the output to match the original ROM byte-for-byte.
+
 ## Linking the DL2 .OBJ files
 
 Drop the eight `.OBJ` files in your current directory and run this from the project root:
@@ -34,6 +51,6 @@ python tools/stitch_rom.py \
     -o dl2_319.bin
 ```
 
-All it does is allocate a 64 KB buffer of zeros, copy `dl2_partial.bin` in at offset 0, then walk through each Intel HEX file and drop its data records at the addresses they specify.  The resulting `dl2_319.bin` should be byte-for-byte identical to the DL2 v3.19 ROM.
+All it does is allocate a 64 KB buffer of zeros, copy `dl2_partial.bin` in at offset 0, then walk through each Intel HEX file and drop its data records at the addresses they specify.  The resulting `dl2_319.bin` should be byte-for-byte identical to the DL2 v3.19 ROM, whose MD5 is `6d762087a3d6b2cb098a46d53e2f4995`.
 
 In theory, compiling the DL2 v3.20 source code and producing a new ROM binary should now be possible.  I haven't tested this; I leave this as an exercise for the reader :)
