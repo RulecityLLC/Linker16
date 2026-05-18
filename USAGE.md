@@ -1,6 +1,10 @@
 # Using Linker16
 
-This is the practical "how do I actually run it" guide.  The goal here is to take the eight Dragon's Lair 2 `.OBJ` files and end up with a working 64 KB ROM image that matches the original `dl2_319.bin` byte-for-byte.
+The goal here is to take the eight Dragon's Lair 2 `.OBJ` files and end up with a working 64 KB ROM image that matches the original `dl2_319.bin` byte-for-byte.
+
+## JDK 25
+
+I tested this on Java 25.  It may work on other versions, but you will need some version of the JDK installed at least.  I used OpenJDK 25 from https://www.azul.com/downloads/?package=jdk#zulu .
 
 ## Making sure you have the right `.OBJ` files
 

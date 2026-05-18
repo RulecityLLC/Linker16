@@ -1,0 +1,7 @@
+# Files consumed by Linux tools (bash, Docker BuildKit, dosbox-on-Linux)
+# must stay LF even when checked out on Windows.  Without this, a fresh
+# Windows clone with core.autocrlf=true would give the dl2build image a
+# CRLF entrypoint.sh, and bash would fail with "bad interpreter".
+*.sh                text eol=lf
+docker/Dockerfile   text eol=lf
+docker/dosbox.conf  text eol=lf
