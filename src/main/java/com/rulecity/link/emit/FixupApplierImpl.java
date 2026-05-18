@@ -1,9 +1,13 @@
 package com.rulecity.link.emit;
 
 import com.rulecity.aggregation.OMFFile;
+import com.rulecity.parse.data.Communal;
+import com.rulecity.parse.data.ExternalNamesDefinition;
+import com.rulecity.parse.data.ExternalOrRelated;
 import com.rulecity.parse.data.FixupProcessed;
 import com.rulecity.parse.data.LedataChunk;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FixupApplierImpl implements FixupApplier
@@ -22,12 +26,12 @@ public class FixupApplierImpl implements FixupApplier
     }
 
     @Override
-    public int apply(byte[] image,
-                     List<OMFFile> modulesInInputOrder,
-                     PieceLookup lookup,
-                     GlobalSymbolTable symbols)
+    public List<Unresolved> apply(byte[] image,
+                                  List<OMFFile> modulesInInputOrder,
+                                  PieceLookup lookup,
+                                  GlobalSymbolTable symbols)
     {
-        int unresolved = 0;
+        List<Unresolved> unresolved = new ArrayList<>();
         for (int m = 0; m < modulesInInputOrder.size(); m++)
         {
             OMFFile module = modulesInInputOrder.get(m);
@@ -43,7 +47,12 @@ public class FixupApplierImpl implements FixupApplier
                             fixup, m, module, lookup, symbols);
                     if (targetOffset == null)
                     {
-                        unresolved++;
+                        // Only EXTDEF targets can resolve to null (SEGDEF/GRPDEF
+                        // throw on missing data inside TargetResolver), so the
+                        // missing name lives in the module's external table.
+                        unresolved.add(new Unresolved(
+                                externalName(module, fixup.idxExternalTarget()),
+                                module.getModuleName()));
                         continue;
                     }
                     int framePara = frameResolver.paragraph(
@@ -55,5 +64,18 @@ public class FixupApplierImpl implements FixupApplier
             }
         }
         return unresolved;
+    }
+
+    private static String externalName(OMFFile module, Integer extIdx)
+    {
+        if (extIdx == null) return "<unknown>";
+        ExternalOrRelated e = module.getExternals().get(extIdx);
+        ExternalNamesDefinition ext = e.external();
+        if (ext != null) return ext.externalNameString();
+        ExternalNamesDefinition lext = e.localExternal();
+        if (lext != null) return lext.externalNameString();
+        Communal c = e.communal();
+        if (c != null) return c.name();
+        return "<unknown>";
     }
 }

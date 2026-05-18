@@ -5,6 +5,7 @@ import com.rulecity.link.data.LinkedLayout;
 
 import java.util.List;
 
+
 public class ImageEmitterImpl implements ImageEmitter
 {
     private final ImageSizer sizer;
@@ -33,7 +34,12 @@ public class ImageEmitterImpl implements ImageEmitter
         PieceLookup lookup = pieceLookupFactory.build(layout.combinedSegments());
         GlobalSymbolTable symbols = symbolTableFactory.build(modulesInInputOrder, layout);
         ledataPlacer.place(image, modulesInInputOrder, lookup);
-        fixupApplier.apply(image, modulesInInputOrder, lookup, symbols);
+        List<FixupApplier.Unresolved> unresolved =
+                fixupApplier.apply(image, modulesInInputOrder, lookup, symbols);
+        if (!unresolved.isEmpty())
+        {
+            throw new UnresolvedExternalsException(unresolved);
+        }
         return image;
     }
 }

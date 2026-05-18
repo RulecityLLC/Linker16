@@ -14,6 +14,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
 
@@ -41,6 +43,7 @@ public class ImageEmitterImplTest
         when(sizer.size(layout)).thenReturn(0x10);
         when(pieceLookupFactory.build(segs)).thenReturn(lookup);
         when(symbolTableFactory.build(modules, layout)).thenReturn(symbols);
+        when(fixupApplier.apply(any(), any(), any(), any())).thenReturn(List.of());
 
         byte[] image = emitter.emit(modules, layout);
 
@@ -52,5 +55,25 @@ public class ImageEmitterImplTest
         order.verify(symbolTableFactory).build(modules, layout);
         order.verify(ledataPlacer).place(image, modules, lookup);
         order.verify(fixupApplier).apply(image, modules, lookup, symbols);
+    }
+
+    @Test
+    public void throwsWhenFixupApplierReportsUnresolved()
+    {
+        List<CombinedSegment> segs = List.of(new CombinedSegment(
+                "_text", "code", OMFItemSEGDEF.Combination.PUBLIC, 1, 0, 0x10, List.of()));
+        LinkedLayout layout = new LinkedLayout(segs, List.of(), List.of());
+        List<OMFFile> modules = List.of(moduleA);
+
+        when(sizer.size(layout)).thenReturn(0x10);
+        when(pieceLookupFactory.build(segs)).thenReturn(lookup);
+        when(symbolTableFactory.build(modules, layout)).thenReturn(symbols);
+        when(fixupApplier.apply(any(), any(), any(), any())).thenReturn(List.of(
+                new FixupApplier.Unresolved("_printf", "ASMLIB.OBJ"),
+                new FixupApplier.Unresolved("_malloc", "ASMLIB.OBJ")));
+
+        UnresolvedExternalsException ex = assertThrows(UnresolvedExternalsException.class,
+                () -> emitter.emit(modules, layout));
+        assertEquals(2, ex.unresolved().size());
     }
 }

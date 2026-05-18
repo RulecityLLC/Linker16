@@ -43,6 +43,7 @@ import com.rulecity.link.emit.GlobalSymbolTableFactoryImpl;
 import com.rulecity.link.emit.ImageEmitter;
 import com.rulecity.link.emit.ImageEmitterImpl;
 import com.rulecity.link.emit.ImageSizer;
+import com.rulecity.link.emit.UnresolvedExternalsException;
 import com.rulecity.link.emit.ImageSizerImpl;
 import com.rulecity.link.emit.LedataPlacer;
 import com.rulecity.link.emit.LedataPlacerImpl;
@@ -147,7 +148,17 @@ public class Main
             modules.add(fileFactory.build(items));
         }
         LinkedLayout layout = linker.link(modules);
-        byte[] image = emitter.emit(modules, layout);
+        byte[] image;
+        try
+        {
+            image = emitter.emit(modules, layout);
+        }
+        catch (UnresolvedExternalsException ex)
+        {
+            System.err.println(ex.getMessage());
+            System.exit(1);
+            return;
+        }
         Files.write(output, image);
         System.out.printf("Wrote %d bytes to %s (DGROUP paragraph=0x%04X)%n",
                 image.length, output, dgroupParagraph);
