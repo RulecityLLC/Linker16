@@ -23,11 +23,8 @@ Put a copy of [build.bat](build.bat) into your DL2 source folder.
 Then `cd` into that folder and run:
 
 ```
-# PowerShell (Windows)
+# PowerShell, Linux, macOS, etc.
 docker run --rm -v ${PWD}:/workspace dl2build
-
-# bash / zsh (Linux, macOS, Git-Bash on Windows)
-docker run --rm -v "$PWD:/workspace" dl2build
 ```
 
 If you're on cmd rather than PowerShell in Windows, use `%cd%` instead of `${PWD}`.
@@ -35,3 +32,12 @@ If you're on cmd rather than PowerShell in Windows, use `%cd%` instead of `${PWD
 ## Caveats
 
 On Linux hosts, the `.OBJ` files may end up owned by root because that's who Docker runs as by default.  If that's annoying, pass `--user $(id -u):$(id -g)` to `docker run`.
+
+## If you don't want to build your own Docker image
+
+If you want something that Just Works, I've published a working docker image to mpownby/dl2build:18May2026 .
+
+So the command line becomes:
+```
+docker run --rm -v ${PWD}:/workspace mpownby/dl2build:18May2026
+```
