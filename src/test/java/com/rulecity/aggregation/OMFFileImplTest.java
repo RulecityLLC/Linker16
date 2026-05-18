@@ -38,7 +38,7 @@ public class OMFFileImplTest
         LedataChunk chunk = new LedataChunk(0, 0, new byte[]{1}, List.of());
         state.getLedataChunks().add(chunk);
 
-        OMFFileImpl file = new OMFFileImpl(state);
+        OMFFileImpl file = new OMFFileImpl(state, "test.obj");
 
         assertEquals("MOD.OBJ", file.getModuleName());
         assertEquals(List.of("seg"), file.getLnames());
@@ -53,7 +53,7 @@ public class OMFFileImplTest
     public void allListGettersReturnUnmodifiableViews()
     {
         AggregationState state = new AggregationState();
-        OMFFileImpl file = new OMFFileImpl(state);
+        OMFFileImpl file = new OMFFileImpl(state, "test.obj");
 
         // Each list getter must reject mutation.
         assertThrows(UnsupportedOperationException.class, () -> file.getLnames().add("x"));
@@ -67,7 +67,7 @@ public class OMFFileImplTest
     @Test
     public void emptyState_returnsEmptyListsAndEmptyName()
     {
-        OMFFileImpl file = new OMFFileImpl(new AggregationState());
+        OMFFileImpl file = new OMFFileImpl(new AggregationState(), "test.obj");
         assertEquals("", file.getModuleName());
         assertEquals(0, file.getLnames().size());
         assertEquals(0, file.getSegmentDefs().size());
@@ -81,7 +81,7 @@ public class OMFFileImplTest
     public void changeToBackingStateIsVisibleThroughViews()
     {
         AggregationState state = new AggregationState();
-        OMFFileImpl file = new OMFFileImpl(state);
+        OMFFileImpl file = new OMFFileImpl(state, "test.obj");
         state.getLnames().add("after-construction");
         assertEquals(List.of("after-construction"), file.getLnames());
     }
@@ -92,7 +92,7 @@ public class OMFFileImplTest
         AggregationState state = new AggregationState();
         ExternalOrRelated ext = new ExternalOrRelated(new Communal("x", 1), null, null);
         state.getExternals().add(ext);
-        OMFFileImpl file = new OMFFileImpl(state);
+        OMFFileImpl file = new OMFFileImpl(state, "test.obj");
         assertSame(ext, file.getExternals().get(0));
     }
 }

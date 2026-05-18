@@ -145,7 +145,7 @@ public class Main
         for (Path p : objs)
         {
             List<OMFItem> items = parser.parseBinary(Files.readAllBytes(p));
-            modules.add(fileFactory.build(items));
+            modules.add(fileFactory.build(items, p.toString()));
         }
         LinkedLayout layout = linker.link(modules);
         byte[] image;

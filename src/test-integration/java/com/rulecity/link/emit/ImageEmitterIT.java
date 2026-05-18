@@ -59,7 +59,7 @@ public class ImageEmitterIT
         {
             byte[] bytes = Files.readAllBytes(OBJ_DIR.resolve(name));
             List<OMFItem> items = parser.parseBinary(bytes);
-            modules.add(aggFactory.build(items));
+            modules.add(aggFactory.build(items, name));
         }
         LinkedLayout layout = linker.link(modules);
         linkedImage = emitter.emit(modules, layout);

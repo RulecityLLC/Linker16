@@ -18,7 +18,7 @@ public class OMFFileFactoryImpl implements OMFFileFactory
     }
 
     @Override
-    public OMFFile build(List<OMFItem> items)
+    public OMFFile build(List<OMFItem> items, String sourceFilename)
     {
         AggregationState state = new AggregationState();
         for (OMFItem item : items)
@@ -26,6 +26,6 @@ public class OMFFileFactoryImpl implements OMFFileFactory
             dispatcher.dispatch(item, state);
         }
         ledataChunkLifecycle.closeOpenChunk(state);
-        return new OMFFileImpl(state);
+        return new OMFFileImpl(state, sourceFilename);
     }
 }

@@ -52,7 +52,7 @@ public class FixupApplierImpl implements FixupApplier
                         // missing name lives in the module's external table.
                         unresolved.add(new Unresolved(
                                 externalName(module, fixup.idxExternalTarget()),
-                                module.getModuleName()));
+                                module.getSourceFilename()));
                         continue;
                     }
                     int framePara = frameResolver.paragraph(

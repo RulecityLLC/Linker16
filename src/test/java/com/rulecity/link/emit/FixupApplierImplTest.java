@@ -88,7 +88,7 @@ public class FixupApplierImplTest
         SegmentPiece piece = new SegmentPiece(0, "A", 0, 0, 0x10);
         when(moduleA.getLedataChunks()).thenReturn(List.of(
                 new LedataChunk(0, 0, new byte[16], List.of(extdefFixup(0, 0)))));
-        when(moduleA.getModuleName()).thenReturn("ASMLIB.OBJ");
+        when(moduleA.getSourceFilename()).thenReturn("ASMLIB.OBJ");
         when(moduleA.getExternals()).thenReturn(List.of(
                 new ExternalOrRelated(null, new ExternalNamesDefinition("_printf", 0), null)));
         when(lookup.find(0, 0)).thenReturn(new PieceLookup.Placement(text, piece));

@@ -37,7 +37,7 @@ public class OMFFileIT
         OMFFileFactory factory = Main.buildOMFFileFactory();
         byte[] data = Files.readAllBytes(OBJ_DIR.resolve(objFileName));
         List<OMFItem> items = parser.parseBinary(data);
-        return factory.build(items);
+        return factory.build(items, objFileName);
     }
 
     @Test

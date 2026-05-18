@@ -15,6 +15,9 @@ import java.util.List;
  */
 public interface OMFFile
 {
+    /** Input file path the caller supplied for this module (e.g. {@code ASMLIB.OBJ}). */
+    String getSourceFilename();
+
     /** Module name from THEADR (e.g. {@code C:\SOURCE\ASMLIB.ASM}). */
     String getModuleName();
 

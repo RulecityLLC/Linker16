@@ -18,12 +18,15 @@ import java.util.List;
 public class OMFFileImpl implements OMFFile
 {
     private final AggregationState state;
+    private final String sourceFilename;
 
-    public OMFFileImpl(AggregationState state)
+    public OMFFileImpl(AggregationState state, String sourceFilename)
     {
         this.state = state;
+        this.sourceFilename = sourceFilename;
     }
 
+    @Override public String getSourceFilename() { return sourceFilename; }
     @Override public String getModuleName() { return state.getModuleName(); }
     @Override public List<String> getLnames() { return Collections.unmodifiableList(state.getLnames()); }
     @Override public List<SegmentDefProcessed> getSegmentDefs() { return Collections.unmodifiableList(state.getSegmentDefs()); }

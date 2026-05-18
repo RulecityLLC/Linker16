@@ -11,5 +11,5 @@ import java.util.List;
  */
 public interface OMFFileFactory
 {
-    OMFFile build(List<OMFItem> items);
+    OMFFile build(List<OMFItem> items, String sourceFilename);
 }

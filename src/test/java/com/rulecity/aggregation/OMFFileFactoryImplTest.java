@@ -28,7 +28,7 @@ public class OMFFileFactoryImplTest
     @Test
     public void dispatchesEachItem_thenClosesOpenChunk()
     {
-        OMFFile result = factory.build(List.of(item1, item2));
+        OMFFile result = factory.build(List.of(item1, item2), "test.obj");
 
         assertNotNull(result);
         InOrder order = inOrder(dispatcher, ledataChunkLifecycle);
@@ -39,7 +39,7 @@ public class OMFFileFactoryImplTest
     @Test
     public void emptyItemList_stillFinalizesLedataLifecycle()
     {
-        factory.build(List.of());
+        factory.build(List.of(), "test.obj");
 
         // No dispatch calls but closeOpenChunk still happens.
         org.mockito.Mockito.verifyNoInteractions(dispatcher);

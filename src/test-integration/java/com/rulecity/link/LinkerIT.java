@@ -53,7 +53,7 @@ public class LinkerIT
         {
             byte[] bytes = Files.readAllBytes(OBJ_DIR.resolve(name));
             List<OMFItem> items = parser.parseBinary(bytes);
-            modules.add(aggFactory.build(items));
+            modules.add(aggFactory.build(items, name));
         }
         layout = linker.link(modules);
         mapPublics = parseMapPublics(Files.readAllLines(MAP_PATH));
