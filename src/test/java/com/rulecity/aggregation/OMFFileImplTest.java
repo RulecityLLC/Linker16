@@ -40,6 +40,7 @@ public class OMFFileImplTest
 
         OMFFileImpl file = new OMFFileImpl(state, "test.obj");
 
+        assertEquals("test.obj", file.getSourceFilename());
         assertEquals("MOD.OBJ", file.getModuleName());
         assertEquals(List.of("seg"), file.getLnames());
         assertEquals(List.of(seg), file.getSegmentDefs());

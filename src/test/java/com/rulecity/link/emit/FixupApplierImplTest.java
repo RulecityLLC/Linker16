@@ -7,6 +7,7 @@ import com.rulecity.parse.OMFItemFIXUPP.FixupMethodFrame;
 import com.rulecity.parse.OMFItemFIXUPP.FixupMethodTarget;
 import com.rulecity.parse.OMFItemFIXUPP.Location;
 import com.rulecity.parse.OMFItemSEGDEF;
+import com.rulecity.parse.data.Communal;
 import com.rulecity.parse.data.ExternalNamesDefinition;
 import com.rulecity.parse.data.ExternalOrRelated;
 import com.rulecity.parse.data.FixupProcessed;
@@ -46,12 +47,24 @@ public class FixupApplierImplTest
                 null, 0, null, null, 0, null, 0x1234);
     }
 
-    private static FixupProcessed extdefFixup(int dataRecordOffset, int extIdx)
+    private static FixupProcessed extdefFixup(int dataRecordOffset, Integer extIdx)
     {
         return new FixupProcessed(true, Location.OFFSET_16BIT, dataRecordOffset,
                 null, FixupMethodFrame.FRAME_SPECIFIED_BY_EXTDEF,
                 null, FixupMethodTarget.TARGET_SPECIFIED_BY_EXTDEF,
                 null, null, extIdx, null, null, extIdx, 0);
+    }
+
+    private void wireUnresolvedFixup(ExternalOrRelated external, Integer extIdx)
+    {
+        CombinedSegment text = new CombinedSegment("_text", "code",
+                OMFItemSEGDEF.Combination.PUBLIC, 1, 0, 0x10, List.of());
+        SegmentPiece piece = new SegmentPiece(0, "A", 0, 0, 0x10);
+        when(moduleA.getLedataChunks()).thenReturn(List.of(
+                new LedataChunk(0, 0, new byte[16], List.of(extdefFixup(0, extIdx)))));
+        when(moduleA.getExternals()).thenReturn(List.of(external));
+        when(lookup.find(0, 0)).thenReturn(new PieceLookup.Placement(text, piece));
+        when(targetResolver.imageOffset(any(), anyInt(), any(), any(), any())).thenReturn(null);
     }
 
     @Test
@@ -82,23 +95,79 @@ public class FixupApplierImplTest
     public void unresolvedExtdefTargetReportsSymbolNameAndModule()
     {
         byte[] image = new byte[0x100];
-
-        CombinedSegment text = new CombinedSegment("_text", "code",
-                OMFItemSEGDEF.Combination.PUBLIC, 1, 0, 0x10, List.of());
-        SegmentPiece piece = new SegmentPiece(0, "A", 0, 0, 0x10);
-        when(moduleA.getLedataChunks()).thenReturn(List.of(
-                new LedataChunk(0, 0, new byte[16], List.of(extdefFixup(0, 0)))));
         when(moduleA.getSourceFilename()).thenReturn("ASMLIB.OBJ");
-        when(moduleA.getExternals()).thenReturn(List.of(
-                new ExternalOrRelated(null, new ExternalNamesDefinition("_printf", 0), null)));
-        when(lookup.find(0, 0)).thenReturn(new PieceLookup.Placement(text, piece));
-        when(targetResolver.imageOffset(any(), anyInt(), any(), any(), any())).thenReturn(null);
+        wireUnresolvedFixup(
+                new ExternalOrRelated(null, new ExternalNamesDefinition("_printf", 0), null), 0);
 
         List<FixupApplier.Unresolved> unresolved =
                 applier.apply(image, List.of(moduleA), lookup, symbols);
 
         assertEquals(List.of(new FixupApplier.Unresolved("_printf", "ASMLIB.OBJ")), unresolved);
         verifyNoInteractions(valueWriter);
+    }
+
+    @Test
+    public void unresolvedLextdefTarget_reportsLocalExternalName()
+    {
+        byte[] image = new byte[0x100];
+        when(moduleA.getSourceFilename()).thenReturn("MOD.OBJ");
+        wireUnresolvedFixup(
+                new ExternalOrRelated(null, null, new ExternalNamesDefinition("_local", 0)), 0);
+
+        List<FixupApplier.Unresolved> unresolved =
+                applier.apply(image, List.of(moduleA), lookup, symbols);
+
+        assertEquals(List.of(new FixupApplier.Unresolved("_local", "MOD.OBJ")), unresolved);
+    }
+
+    @Test
+    public void unresolvedComdefTarget_reportsCommunalName()
+    {
+        byte[] image = new byte[0x100];
+        when(moduleA.getSourceFilename()).thenReturn("MOD.OBJ");
+        wireUnresolvedFixup(
+                new ExternalOrRelated(new Communal("_shared", 4), null, null), 0);
+
+        List<FixupApplier.Unresolved> unresolved =
+                applier.apply(image, List.of(moduleA), lookup, symbols);
+
+        assertEquals(List.of(new FixupApplier.Unresolved("_shared", "MOD.OBJ")), unresolved);
+    }
+
+    @Test
+    public void unresolvedTarget_withNullExternalIndex_reportsUnknown()
+    {
+        byte[] image = new byte[0x100];
+        // Fixup carries no idxExternalTarget — externalName short-circuits on the
+        // null check and never consults the externals list.
+        CombinedSegment text = new CombinedSegment("_text", "code",
+                OMFItemSEGDEF.Combination.PUBLIC, 1, 0, 0x10, List.of());
+        SegmentPiece piece = new SegmentPiece(0, "A", 0, 0, 0x10);
+        when(moduleA.getLedataChunks()).thenReturn(List.of(
+                new LedataChunk(0, 0, new byte[16], List.of(extdefFixup(0, null)))));
+        when(moduleA.getSourceFilename()).thenReturn("MOD.OBJ");
+        when(lookup.find(0, 0)).thenReturn(new PieceLookup.Placement(text, piece));
+        when(targetResolver.imageOffset(any(), anyInt(), any(), any(), any())).thenReturn(null);
+
+        List<FixupApplier.Unresolved> unresolved =
+                applier.apply(image, List.of(moduleA), lookup, symbols);
+
+        assertEquals(List.of(new FixupApplier.Unresolved("<unknown>", "MOD.OBJ")), unresolved);
+    }
+
+    @Test
+    public void unresolvedTarget_withAllExternalSlotsNull_reportsUnknown()
+    {
+        byte[] image = new byte[0x100];
+        when(moduleA.getSourceFilename()).thenReturn("MOD.OBJ");
+        // Pathological ExternalOrRelated where none of the three sub-records is populated —
+        // externalName falls through every branch and returns the placeholder.
+        wireUnresolvedFixup(new ExternalOrRelated(null, null, null), 0);
+
+        List<FixupApplier.Unresolved> unresolved =
+                applier.apply(image, List.of(moduleA), lookup, symbols);
+
+        assertEquals(List.of(new FixupApplier.Unresolved("<unknown>", "MOD.OBJ")), unresolved);
     }
 
     @Test
